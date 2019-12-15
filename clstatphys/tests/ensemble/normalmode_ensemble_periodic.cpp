@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
-#include <ensemble/normalmode_ensemble_periodic_boundary.hpp>
-#include <physics/harmonic_oscillator.hpp>
-#include <physics/normalmode_energy_periodic.hpp>
-#include <lattice/chain.hpp>
-#include <integrator/runge_kutta_4th.hpp>
+#include <clstatphys/ensemble/normalmode_ensemble_periodic_boundary.hpp>
+#include <clstatphys/physics/harmonic_oscillator.hpp>
+#include <clstatphys/physics/normalmode_energy_periodic.hpp>
+#include <clstatphys/lattice/chain.hpp>
+#include <clstatphys/integrator/runge_kutta_4th.hpp>
 #include <limits>
 
 namespace {

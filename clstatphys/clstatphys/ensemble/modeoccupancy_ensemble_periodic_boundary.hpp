@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 #include <random>
-#include <physics/periodic_boundary_normalmode.hpp>
+#include <clstatphys/physics/periodic_boundary_normalmode.hpp>
 
 namespace ensemble{
 

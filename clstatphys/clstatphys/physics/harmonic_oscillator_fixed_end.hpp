@@ -40,13 +40,16 @@ public:
     double *fx = &force[0];
     double *fv = &force[n_];
     for(int i = 0; i < n_ ; ++i) fx[i] = v[i];
-    for(int i = 0; i < n_ ; ++i){
+    for(int i = 1; i < n_ -1; ++i){
       fv[i] = 0.0;
       for(int d = 0; d < Nd_; ++d){
         fv[i] -=  J_ * (x[i] -x[table_[i][d]]);
       }
     }
-    for(auto& i : {0, n_ - 1}) fv[i] -= J_ * x[i];
+  fv[0] = 0.0;
+  fv[0] -= J_ * (x[0] - x[1]) + J_ * x[0];
+  fv[n_-1] = 0.0;
+  fv[n_-1] -= J_ * (x[n_-1] - x[n_-2]) + J_ * x[n_-1];
   }
 
   int Nd()const { return Nd_ ;}

@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <iostream>
-#include <tools/time_measure.hpp>
-#include<limits>
+#include <limits>
+#include <clstatphys/tools/time_measure.hpp>
 
 TEST(TimeMeasureTest, LinearTest){
   double t = 10;

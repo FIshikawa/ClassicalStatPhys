@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
-#include <ensemble/langevin_thermostat.hpp>
-#include <physics/harmonic_oscillator_fixed_end.hpp>
-#include <lattice/chain.hpp>
 #include <limits>
+#include <clstatphys/ensemble/langevin_thermostat.hpp>
+#include <clstatphys/physics/harmonic_oscillator_fixed_end.hpp>
+#include <clstatphys/lattice/chain.hpp>
 
 namespace {
 class LangevinThermostatTest: public ::testing::Test {

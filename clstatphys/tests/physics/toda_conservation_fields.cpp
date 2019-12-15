@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
-#include <physics/toda_lax_form.hpp>
-#include <physics/toda_conservation_fields.hpp>
-#include <physics/todalattice.hpp>
-#include <lattice/chain.hpp>
-#include <integrator/runge_kutta_4th.hpp>
+#include <clstatphys/physics/toda_lax_form.hpp>
+#include <clstatphys/physics/toda_conservation_fields.hpp>
+#include <clstatphys/physics/todalattice.hpp>
+#include <clstatphys/lattice/chain.hpp>
+#include <clstatphys/integrator/runge_kutta_4th.hpp>
 
 namespace {
 class TodaConservationFieldsTest: public ::testing::Test {

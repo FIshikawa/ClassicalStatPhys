@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <lattice/chain_open_boundary.hpp>
+#include <clstatphys/lattice/chain_open_boundary.hpp>
 
 TEST(ChainOpenBoundaryTest, FundamentalTest){
   int Ns = 10;

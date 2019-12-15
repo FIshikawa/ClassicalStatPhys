@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
-#include <physics/fpu_generalized_fixed_end.hpp>
-#include <lattice/chain_open_boundary.hpp>
-#include <integrator/runge_kutta_4th.hpp>
+#include <clstatphys/physics/fpu_generalized_fixed_end.hpp>
+#include <clstatphys/lattice/chain_open_boundary.hpp>
+#include <clstatphys/integrator/runge_kutta_4th.hpp>
 
 namespace {
 class FPUFixedEndTest: public ::testing::Test {

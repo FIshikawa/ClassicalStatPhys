@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
-#include <physics/harmonic_oscillator.hpp>
-#include <lattice/chain.hpp>
-#include <integrator/velocity_velret.hpp>
+#include <clstatphys/physics/harmonic_oscillator.hpp>
+#include <clstatphys/lattice/chain.hpp>
+#include <clstatphys/integrator/velocity_velret.hpp>
 
 namespace {
 class VelocityVelretTest: public ::testing::Test {

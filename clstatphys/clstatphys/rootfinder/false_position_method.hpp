@@ -29,21 +29,19 @@ public:
     }
     if(y0 * y1 > 0) return -1;
 
-    while (true) {
+    while(((x1-x0) / std::max(std::abs(x0), std::abs(x1))) > prec &&
+          std::min(std::abs(y1), std::abs(y0)) > prec ){
     ++counter;
       double xm = (x0 * y1 - x1 * y0) / (y1 - y0);
       double ym = f(xm);
-      if( std::abs(y0-ym)/std::max(std::abs(y0),std::abs(ym)) < prec ||
-          std::abs(y1-ym)/std::max(std::abs(y1),std::abs(ym)) < prec ||
-          ((x1-x0) / std::max(std::abs(x0), std::abs(x1))) < prec ||
-          std::max(std::abs(y1), std::abs(y0)) < prec ){
-        x0 = xm;
-        break;
-      } 
       if(y0 * ym > 0) {
         x0 = xm; y0 = ym;
-      }else{
+      }else if(y1 * ym > 0){
         x1 = xm; y1 = ym;
+      }
+      else{
+        y1 = ym; y0 = ym;
+        x1 = xm; x0 = xm;
       }
     }
     zero_ = x0;

@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <tools/bisection_method.hpp>
+#include <clstatphys/tools/bisection_method.hpp>
 
 double f(double x) { return 3*x*x-5*x+1; }
 

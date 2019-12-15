@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <random>
 #include <limits>
-#include <tools/statistical_divergence.hpp>
+#include <clstatphys/tools/statistical_divergence.hpp>
 
 namespace {
 class StatisticalDivergenceTest: public ::testing::Test {

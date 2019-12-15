@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <lattice/chain.hpp>
+#include <clstatphys/lattice/chain.hpp>
 
 TEST(ChainTest, FundamentalTest){
   int Ns = 10;

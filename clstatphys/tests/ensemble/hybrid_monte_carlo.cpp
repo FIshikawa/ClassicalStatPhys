@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
-#include <ensemble/hybrid_monte_carlo.hpp>
-#include <physics/harmonic_oscillator_fixed_end.hpp>
-#include <lattice/chain.hpp>
+#include <clstatphys/ensemble/hybrid_monte_carlo.hpp>
+#include <clstatphys/physics/harmonic_oscillator_fixed_end.hpp>
+#include <clstatphys/lattice/chain.hpp>
 #include <limits>
 
 namespace {

@@ -3,7 +3,7 @@ project(clstatphys NONE)
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/config)
 include(core)
-include_directories(${PROJECT_SOURCE_DIR}/clstatphys)
+include_directories(${PROJECT_SOURCE_DIR})
 
 set(GOOGLETEST_VERSION 1)
 add_subdirectory(tool/googletest)

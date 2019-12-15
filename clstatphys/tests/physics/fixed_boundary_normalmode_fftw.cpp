@@ -1,7 +1,7 @@
 #include <cmath>
 #include <limits>
 #include <gtest/gtest.h>
-#include <physics/fixed_boundary_normalmode_fftw.hpp>
+#include <clstatphys/physics/fixed_boundary_normalmode_fftw.hpp>
 
 namespace {
 class FixedBoundaryNormalModeFFTWTest: public ::testing::Test {

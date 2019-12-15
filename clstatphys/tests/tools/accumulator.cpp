@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <tools/accumulator.hpp>
+#include <clstatphys/tools/accumulator.hpp>
 
 namespace {
 class AccumulatorTest : public ::testing::Test {

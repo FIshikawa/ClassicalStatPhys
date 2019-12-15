@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
-#include <ensemble/harmonic_chain_periodic_boundary.hpp>
-#include <physics/harmonic_oscillator.hpp>
-#include <lattice/chain.hpp>
+#include <clstatphys/ensemble/harmonic_chain_periodic_boundary.hpp>
+#include <clstatphys/physics/harmonic_oscillator.hpp>
+#include <clstatphys/lattice/chain.hpp>
 #include <limits>
 
 namespace {

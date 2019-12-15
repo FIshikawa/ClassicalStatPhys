@@ -6,7 +6,7 @@
 #include <vector>
 #include <random>
 
-#include <integrator/dissipated_runge_kutta.hpp>
+#include <clstatphys/integrator/dissipated_runge_kutta.hpp>
 
 namespace ensemble{
 

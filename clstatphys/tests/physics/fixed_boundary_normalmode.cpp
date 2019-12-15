@@ -1,7 +1,7 @@
 #include <cmath>
 #include <limits>
 #include <gtest/gtest.h>
-#include <physics/fixed_boundary_normalmode.hpp>
+#include <clstatphys/physics/fixed_boundary_normalmode.hpp>
 
 namespace {
 class FixedBoundaryNormalModeTest: public ::testing::Test {

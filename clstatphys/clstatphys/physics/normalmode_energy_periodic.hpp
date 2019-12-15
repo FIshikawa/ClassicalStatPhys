@@ -3,7 +3,7 @@
 
 #include <cmath>
 #include <vector>
-#include <physics/periodic_boundary_normalmode.hpp>
+#include <clstatphys/physics/periodic_boundary_normalmode.hpp>
 
 void NormalModeEnergyPeriodic(std::vector<double>& z, std::vector<double>& Ek){
   int num_particles = z.size() / 2;

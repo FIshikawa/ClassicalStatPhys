@@ -3,7 +3,7 @@
 
 #include <cmath>
 #include <vector>
-#include <physics/periodic_boundary_normalmode_fftw.hpp>
+#include <clstatphys/physics/periodic_boundary_normalmode_fftw.hpp>
 
 void NormalModeEnergyPeriodicFFTW(std::vector<double>& z, std::vector<double>& Ek){
   int num_particles = z.size() / 2;

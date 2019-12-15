@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
-#include <physics/sinh_lattice_fixed_end_parallel.hpp>
-#include <lattice/chain_open_boundary.hpp>
-#include <integrator/runge_kutta_4th.hpp>
+#include <clstatphys/physics/sinh_lattice_fixed_end_parallel.hpp>
+#include <clstatphys/lattice/chain_open_boundary.hpp>
+#include <clstatphys/integrator/runge_kutta_4th.hpp>
 
 namespace {
 class SinhLatticeFixedEndParallelTest: public ::testing::Test {

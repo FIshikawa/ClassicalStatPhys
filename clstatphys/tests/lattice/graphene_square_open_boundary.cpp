@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <lattice/graphene_square_open_boundary.hpp>
+#include <clstatphys/lattice/graphene_square_open_boundary.hpp>
 
 TEST(GrapheneSquareOpenBoundaryTest, FundamentalTest){
   int Ns = 3;

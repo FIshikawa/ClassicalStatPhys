@@ -1,7 +1,7 @@
 #include <cmath>
 #include <limits>
 #include <gtest/gtest.h>
-#include <physics/periodic_boundary_normalmode_fftw.hpp>
+#include <clstatphys/physics/periodic_boundary_normalmode_fftw.hpp>
 
 namespace {
 class PeriodicBoundaryNormalModeFFTWTest: public ::testing::Test {

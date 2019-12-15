@@ -1,10 +1,10 @@
 #include <gtest/gtest.h>
-#include <ensemble/normalmode_ensemble.hpp>
-#include <physics/harmonic_oscillator_fixed_end.hpp>
-#include <physics/normalmode_energy.hpp>
-#include <lattice/chain_open_boundary.hpp>
-#include <integrator/runge_kutta_4th.hpp>
 #include <limits>
+#include <clstatphys/ensemble/normalmode_ensemble.hpp>
+#include <clstatphys/physics/harmonic_oscillator_fixed_end.hpp>
+#include <clstatphys/physics/normalmode_energy.hpp>
+#include <clstatphys/lattice/chain_open_boundary.hpp>
+#include <clstatphys/integrator/runge_kutta_4th.hpp>
 
 namespace {
 class NormalModeEnsembleTest : public ::testing::Test {

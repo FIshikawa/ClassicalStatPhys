@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <tools/histogram.hpp>
+#include <clstatphys/tools/histogram.hpp>
 
 namespace {
 class HistogramTest : public ::testing::Test {

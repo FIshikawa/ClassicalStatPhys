@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
-#include <physics/harmonic_oscillator_fixed_end.hpp>
-#include <lattice/chain.hpp>
-#include <integrator/dissipated_runge_kutta.hpp>
+#include <clstatphys/physics/harmonic_oscillator_fixed_end.hpp>
+#include <clstatphys/lattice/chain.hpp>
+#include <clstatphys/integrator/dissipated_runge_kutta.hpp>
 
 namespace {
 class DissipatedRungeKuttaTest: public ::testing::Test {

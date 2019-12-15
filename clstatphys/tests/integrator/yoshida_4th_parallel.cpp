@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
-#include <physics/harmonic_oscillator.hpp>
-#include <lattice/chain.hpp>
-#include <integrator/yoshida_4th_parallel.hpp>
+#include <clstatphys/physics/harmonic_oscillator.hpp>
+#include <clstatphys/lattice/chain.hpp>
+#include <clstatphys/integrator/yoshida_4th_parallel.hpp>
 
 namespace {
 class Yoshida4thParallelTest: public ::testing::Test {

@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <cstdio>
-#include <tools/data_recorder.hpp>
+#include <clstatphys/tools/data_recorder.hpp>
 
 TEST(DataRecorderTest, BasicTest){
   std::string condition_dat = "condition_basic.dat";

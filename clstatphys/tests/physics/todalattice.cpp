@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
-#include <physics/todalattice.hpp>
-#include <lattice/chain.hpp>
-#include <integrator/runge_kutta_4th.hpp>
+#include <clstatphys/physics/todalattice.hpp>
+#include <clstatphys/lattice/chain.hpp>
+#include <clstatphys/integrator/runge_kutta_4th.hpp>
 
 namespace {
 class TodaLatticeTest: public ::testing::Test {

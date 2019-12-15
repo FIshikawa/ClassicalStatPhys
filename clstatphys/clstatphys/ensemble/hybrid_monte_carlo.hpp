@@ -5,7 +5,7 @@
 #include <string>
 #include <random>
 
-#include <integrator/yoshida_4th.hpp>
+#include <clstatphys/integrator/yoshida_4th.hpp>
 
 namespace ensemble{
 
