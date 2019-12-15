@@ -1,0 +1,41 @@
+{ 
+  "experiment_dir":"ThermalRelaxation/",
+  "experiments":{
+    "experiment_1":{
+      "experiment_params":{
+        "command_name":"clXYmodel_Cube"
+        },
+      "simulate_params":{
+        "T":[2.18,2.22],
+        "Ns":10,
+        "Ns_observe":"Ns / 2",
+        "N_thermalize":"Ns * Ns",
+        "N_loop":10000,
+        "N_parallel":16,
+        "t":100,
+        "dt":0.01,
+        "N_time":"t / dt",
+        "N_time_resolve":10,
+        "n_bin":1000
+        }
+    },
+    "experiment_2":{
+      "experiment_params":{
+        "command_name":"clXYmodel_Cube"
+        },
+      "simulate_params":{
+        "T":[1.0,1.2,1.4,1.6,1.8,2.0,2.2,2.4,2.6,2.8,3.0],
+        "Ns":[10,20,30],
+        "Ns_observe":"Ns / 2",
+        "N_thermalize":"Ns * Ns * Ns",
+        "N_loop":10000,
+        "N_parallel":16,
+        "t":10000,
+        "dt":0.01,
+        "N_time":"t / dt",
+        "N_time_resolve":10,
+        "n_bin":1000
+        }
+    }
+  }
+}

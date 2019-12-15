@@ -1,0 +1,7 @@
+add_subdirectory(tools)
+add_subdirectory(lattice)
+add_subdirectory(integrator)
+add_subdirectory(physics)
+add_subdirectory(ensemble)
+add_subdirectory(main)
+add_subdirectory(rootfinder)

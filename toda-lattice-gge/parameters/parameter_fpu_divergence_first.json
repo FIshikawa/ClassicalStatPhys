@@ -1,0 +1,30 @@
+{
+    "experiment_dir": "Prethermalization/",
+    "experiments": {
+        "experiment_1": {
+            "experiment_params": {
+                "command_name": "fpu_generalized_thermalization_periodic_boundary_divergence"
+            },
+            "simulate_params": {
+                "Ns": 1024,
+                "Ns_observe":"Ns / 4",
+                "N_loop": 128,
+                "N_mpi_parallel": 16,
+                "N_normalmode": "Ns / 16",
+                "J":1.0,
+                "alpha":1.0, 
+                "beta": "alpha * alpha * 2 / 3",
+                "gamma": 0.0,
+                "delta": 0.0,
+                "k_initial": 1,
+                "E_initial": "E_epsilon * Ns",
+                "E_epsilon": [0.1,0.01,0.001,0.0025,0.005,0.05,0.075],
+                "t": 100000,
+                "dt": 0.01,
+                "N_time": "t / dt",
+                "N_time_resolve": "t / dt / 10000",
+                "n_bin": 1000
+            }
+        }
+    }
+}

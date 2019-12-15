@@ -1,0 +1,35 @@
+{
+    "experiment_dir": "TrialExperiments/",
+    "experiments": {
+        "experiment_1": {
+            "experiment_params": {
+                "command_name": "gfpu_sampled_from_toda_modeoccupancy_periodic_boundary"
+            },
+            "simulate_params": {
+                "Ns": 256,
+                "Ns_observe":"Ns / 4",
+                "N_loop": 128,
+                "N_mpi_parallel": 16,
+                "N_normalmode": "Ns / 64",
+                "J_toda":"1 / ( 4 * alpha_fpu * alpha_fpu)", 
+                "alpha_toda":"alpha_fpu * 2.0", 
+                "J_fpu":1.0,
+                "alpha_fpu":1.0, 
+                "beta": "alpha_fpu * alpha_fpu * 2 / 3",
+                "gamma": "alpha_fpu * alpha_fpu * alpha_fpu / 3",
+                "delta": "alpha_fpu * alpha_fpu * alpha_fpu * alpha_fpu * 2 / 15",
+                "k_initial": 1,
+                "E_initial": "E_epsilon * Ns",
+                "E_epsilon": 0.1,
+                "t_relax": 2000,
+                "t_sampling": [20,40,80,100,120,140,160,180,200],
+                "t":1000,
+                "dt": 0.01,
+                "N_time": "t / dt",
+                "N_time_measure":100,
+                "plot_scale":"log",
+                "n_bin": 1000
+            }
+       }
+    }
+}

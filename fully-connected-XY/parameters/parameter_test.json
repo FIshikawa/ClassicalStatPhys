@@ -1,0 +1,22 @@
+{ 
+  "experiment_dir":"test/",
+  "experiments":{
+   "experiment_1":{
+      "experiment_params":{
+        "command_name":"clXYmodelCritical_Fully"
+        },
+      "simulate_params":{
+        "T":0.01,
+        "d_T":0.01,
+        "N_T":5,
+        "Ns":30,
+        "N_thermalize":"Ns",
+        "N_loop":10,
+        "n_bin":1000,
+        "N_relax":100,
+        "Ns_observe":2,
+        "N_parallel":16
+        }
+    }
+  }
+}
