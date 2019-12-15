@@ -38,12 +38,12 @@ try {
   std::mt19937 mt(seed);
 
   //declare class 
-  unsigned int dimension = 100;
-  double bin = 0.01;
+  unsigned int dimension = 10;
+  double bin = 0.1;
   double E_max = 1.0;
   double E_min = 0.0;
   unsigned int N_bin = int((E_max - E_min) / bin);
-  int max_iteration = 100;
+  int max_iteration = 10;
   std::cout << "[declare class]" << std::endl;
   metadynamics::WangLandau wang_landau(dimension, N_bin, E_max, E_min);
   //end declare class
