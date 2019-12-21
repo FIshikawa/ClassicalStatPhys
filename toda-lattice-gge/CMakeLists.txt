@@ -13,11 +13,16 @@ list(APPEND CMAKE_MODULE_PATH ${CLSTATPHYS_DIR}/config)
 include(core)
 include_directories(${CLSTATPHYS_DIR})
 
+set(GOOGLETEST_VERSION 1)
+add_subdirectory(tool/googletest)
+include_directories(tool/googletest/include)
+
 # include simulation depended libraries
-include_directories(${PROJECT_SOURCE_DIR}/indlue)
+include_directories(${PROJECT_SOURCE_DIR}/include)
 
 # IO test
 include(add_iotest)
 enable_testing()
 
-add_subdirectory(src)
+#add_subdirectory(src)
+add_subdirectory(tests)
