@@ -12,6 +12,7 @@ class TimeMeasure{
 public:
   TimeMeasure(double t, double dt, int N_time_measure, std::string scale = "linear", int order = 0) : 
     t_(t), dt_(dt), N_time_measure_(N_time_measure), scale_(scale), order_(order){reset();initialize();}
+  TimeMeasure() = default;
 
   void reset(){
     counter_ = 0;
