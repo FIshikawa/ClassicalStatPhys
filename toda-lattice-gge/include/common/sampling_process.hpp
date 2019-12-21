@@ -1,17 +1,4 @@
-#include<common/settings_common.hpp>
-
-template<struct Settings>
-void SamplingProcess(Settings & settings){
-  int num_particles = settings.num_particles;
-
-  // defined some classes
-  Integrator integrator(2*num_particles);
-  Ensembler ensembler = settings.ensembler();
-  Hamiltonian hamiltonian = settings.hamiltonian();
-  TimeMeasure time_measure = settings.time_measure();
-  
-  std::vector<double> z(2*num_particles);
-
+void SamplingProcess(){
   int observe = (num_particles-1) / 2;
   double *x = &z[0];
   double *v = &z[num_particles];

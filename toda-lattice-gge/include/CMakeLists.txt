@@ -1,1 +1,2 @@
-install(DIRECTORY . DESTINATION include/physics FILES_MATCHING PATTERN "*.hpp")
+add_subdirectory(common)
+add_subdirectory(specific)
