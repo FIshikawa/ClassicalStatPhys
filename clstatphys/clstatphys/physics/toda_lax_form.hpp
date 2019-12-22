@@ -12,6 +12,7 @@ namespace integrable{
 class TodaLaxForm{
 public:
   TodaLaxForm(int num_particles, double J, double alpha, std::vector<std::vector<int > > table, int N_adj) : num_particles_(num_particles), J_(J), table_(table),Nd_(N_adj),alpha_(alpha){}
+  TodaLaxForm() = default;
 
   rokko::dlmatrix L_matrix(std::vector<double>& z){
     rokko::dlmatrix L = rokko::dlmatrix::Zero(num_particles_, num_particles_);
