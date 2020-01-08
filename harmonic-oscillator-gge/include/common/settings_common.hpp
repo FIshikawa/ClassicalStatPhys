@@ -113,6 +113,8 @@ struct SettingsCommon{
     lattice_t.create_table(pair_table);
     return integrable::TodaLaxForm(num_particles,1.0,1.0,pair_table,N_adj);
   }
+
+  inline void finalize(){mpi_error = MPI_Finalize();};
 }; // end struct define
 
 #endif

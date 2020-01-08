@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <specific/toda_lattice_periodic_boundary_thermalization_from_normalmode_ensemble.hpp>
+#include <specific/harmonic_oscillator_periodic_boundary_thermalization_from_point_heating.hpp>
 #include <common/sampling_process.hpp>
 #include <common/physical_quantities.hpp>
 
