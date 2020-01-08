@@ -14,8 +14,9 @@ include(core)
 include_directories(${CLSTATPHYS_DIR})
 
 set(GOOGLETEST_VERSION 1)
-add_subdirectory(tool/googletest)
-include_directories(tool/googletest/include)
+set(GOOGLETEST_DIR "${PROJECT_SOURCE_DIR}/../clstatphys/tool/googletest/")
+add_subdirectory(${GOOGLETEST_DIR} ./build/tool/)
+include_directories(${GOOGLETEST_DIR}/include)
 
 # include simulation depended libraries
 include_directories(${PROJECT_SOURCE_DIR}/include)

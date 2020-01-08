@@ -35,6 +35,7 @@ int main(int argc, char **argv){
   if(process_id == 0) dataput.time_tag() << " output : end" << std::endl;
 
   if(process_id == 0) dataput.time_tag() << " end time " << std::endl; 
+  settings.finalize();
 
   return 0;
 }

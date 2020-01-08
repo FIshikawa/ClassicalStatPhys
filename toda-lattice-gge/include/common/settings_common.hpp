@@ -30,6 +30,7 @@ struct SettingsCommon{
   int name_length;
   int num_threads;
   int mpi_error = 1;
+  int mpi_error_end = 1;
   char processor_name[MPI_MAX_PROCESSOR_NAME];
   double dt = 0.01;//time step length
   double E_initial = 1.0; // initial energy
@@ -126,6 +127,9 @@ struct SettingsCommon{
     lattice_t.create_table(pair_table);
     return integrable::TodaLaxForm(num_particles,1.0,1.0,pair_table,N_adj);
   }
+
+  inline void finalize(){mpi_error = MPI_Finalize();};
+
 }; // end struct define
 
 #endif
