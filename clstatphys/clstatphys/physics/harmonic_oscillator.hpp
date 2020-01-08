@@ -12,6 +12,7 @@ public:
   static std::string name() { return "Classical Harmonic Oscillator"; }
   // z[0...n-1]: position, z[n...2n-1]: momentum
   HarmonicOscillator(int num_particles, double J, std::vector<std::vector<int > > table, int N_adj) : n_(num_particles), J_(J), table_(table),Nd_(N_adj){}
+  HarmonicOscillator() = default;
 
   double energy(const double t, std::vector<double> const& z) const {
     return potential_energy(t, z) + kinetic_energy(t, z);
