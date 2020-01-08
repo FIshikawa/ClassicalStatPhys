@@ -24,5 +24,5 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 include(add_iotest)
 enable_testing()
 
-#add_subdirectory(src)
+add_subdirectory(src)
 add_subdirectory(tests)
