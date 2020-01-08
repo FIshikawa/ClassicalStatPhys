@@ -12,7 +12,7 @@ int main(int argc, char **argv){
   if(process_id == 0) dataput.time_tag() << " start time " << std::endl;
 
   // declare parameters
-  settings.declare(dataput);
+  if(process_id == 0) settings.declare(dataput);
 
   // set physical quantities
   if(process_id == 0) dataput.time_tag() << " define physical quantities : start" << std::endl;

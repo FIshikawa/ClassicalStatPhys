@@ -7,9 +7,6 @@ foreach(progs ${PROGS})
   set(test_name "${name}")
   target_link_libraries(${name} ${FFTW_LIBRARIES})
   target_link_libraries(${name} ${ROKKO_LIBRARIES})
-  file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/src/test/)
-  file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/src/test/${test_name}/)
-  set(test_directory "${PROJECT_BINARY_DIR}/src/test/${test_name}/")
   set(MPI_COMMAND mpirun -np 1 ${name})
   add_test(
     NAME ${name}

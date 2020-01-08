@@ -59,6 +59,7 @@ struct SettingsCommon{
     }
     if (argc > input_counter) N_time =           boost::lexical_cast<int>(argv[input_counter]);++input_counter;
     if (argc > input_counter) t =                boost::lexical_cast<double>(argv[input_counter]);++input_counter;
+    if (argc > input_counter) temperture =       boost::lexical_cast<double>(argv[input_counter]);++input_counter;
     if (argc > input_counter) N_loop =           boost::lexical_cast<int>(argv[input_counter]);++input_counter;
     if (argc > input_counter) N_time_measure =   boost::lexical_cast<int>(argv[input_counter]);++input_counter;
     if (argc > input_counter) plot_scale =       boost::lexical_cast<std::string>(argv[input_counter]);++input_counter;
@@ -91,6 +92,7 @@ struct SettingsCommon{
             << "  Developing ime : t = " << t << std::endl
             << "  Number of time steps : N_time = " << N_time << std::endl
             << "  Time interbal : dt = " << dt << std::endl
+            << "  Temperture : temperture = " << temperture << std::endl
             << "  Number of MPI parallelization : N_mpi_parallel =" << N_mpi_parallel << std::endl
             << "  Number of loop : N_loop =" << N_loop << std::endl
             << "  Each thread loop : N_each = " << N_each << std::endl 

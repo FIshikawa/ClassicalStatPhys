@@ -24,7 +24,7 @@ struct Settings : public SettingsCommon{
   inline void set(int argc, char **argv, int & input_counter){
     if (argc > input_counter) J =     boost::lexical_cast<double>(argv[input_counter]);++input_counter;
     if (argc > input_counter) heating_temperture  =     boost::lexical_cast<double>(argv[input_counter]);++input_counter;
-    if (argc > input_counter) num_heating_particles  =     boost::lexical_cast<int>(argv[input_counter]);++input_counter;
+    if (argc > input_counter) num_heating_particles  =  boost::lexical_cast<int>(argv[input_counter]);++input_counter;
     if( num_heating_particles > num_particles){
       std::cerr << "num_heating_particles must be lower than num_particles" << std::endl;
       std::exit(1);
