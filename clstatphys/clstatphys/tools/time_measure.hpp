@@ -1,6 +1,7 @@
 #ifndef TIME_MEASURE_HPP
 #define TIME_MEASURE_HPP
 
+#include <iostream>
 #include <string>
 #include <vector>
 #include <cmath>
