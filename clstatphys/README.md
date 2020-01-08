@@ -1,5 +1,7 @@
 # clstatphys : Classical Statistical Physics Modules 
 
+Basic libraries to simulate classical statistical physics.
+
 ## How to compile 
 
 ```
