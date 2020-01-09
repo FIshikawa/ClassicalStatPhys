@@ -11,6 +11,7 @@ using PhysicalQuantities2d = std::unordered_map<std::string, std::vector<std::ve
 struct PhysicalQuantities{
   int num_particles;
   int N_total_data;
+  int Ns_observe;
   double v_init;
   double x_init;
   std::vector<std::string> quantities_1d_list = {
@@ -41,6 +42,7 @@ struct PhysicalQuantities{
   PhysicalQuantities(Settings & settings){
     N_total_data = settings.N_total_data;
     num_particles = settings.num_particles;
+    Ns_observe = settings.Ns_observe;
 
     for(const auto& key : quantities_1d_list){
       quantities_1d[key].resize(N_total_data);
@@ -49,8 +51,8 @@ struct PhysicalQuantities{
     for(const auto& key : quantities_2d_list){
       quantities_2d[key].resize(N_total_data);
       for(int step = 0 ; step < N_total_data ; ++step){
-        quantities_2d[key][step] = std::vector<tools::Accumulator>(num_particles);
-        for(int i = 0; i < num_particles ; ++i) quantities_2d[key][step][i].reset();
+        quantities_2d[key][step] = std::vector<tools::Accumulator>(Ns_observe);
+        for(int i = 0; i < Ns_observe; ++i) quantities_2d[key][step][i].reset();
       }
     }
     hamiltonian = settings.hamiltonian();
@@ -102,7 +104,7 @@ struct PhysicalQuantities{
     quantities_1d["VelocityACF"][measure_step] << v_init * (v[observe] - v_total);
     quantities_1d["DisplacementACF"][measure_step] << x_init * x[observe];
 
-    for(int i = 0; i < num_particles; ++i) {
+    for(int i = 0; i < Ns_observe; ++i) {
       quantities_2d["NormalModeEnergy"][measure_step][i] << normalmode_energy_temp[i];
       quantities_2d["SpaceCorrelation"][measure_step][i] << x[observe] * x[i];
       quantities_2d["GeneratorCorrelation"][measure_step][i] << 0.5 * (v[observe] * v[observe] - x[observe] * x[observe]) *
@@ -122,23 +124,24 @@ struct PhysicalQuantities{
     file_name["normal"] = settings.result_directory + "result.dat";
     std::unordered_map<std::string, std::vector<double> > results_normal;
     
-
     for(const auto& key  : quantities_1d_list){
+      values_name["normal"].push_back(key);
+      values_name["normal"].push_back("error_" + key);
       results_normal[key].resize(N_total_data);
       results_normal["error_" + key].resize(N_total_data);
       for(int step = 0; step < N_total_data; ++step){
         results_normal[key][step] = quantities_1d[key][step].mean();
         results_normal["error_" + key][step] = quantities_1d[key][step].error();
       }
-      values_name["normal"].push_back(key);
-      values_name["normal"].push_back("error_" + key);
     }
     std::unordered_map< std::string, std::vector<double> > domain_time;
     domain_time["time"] = std::vector<double>(N_total_data);
     tools::TimeMeasure time_measure = settings.time_measure();
     for(int step = 0; step < N_total_data; ++step) domain_time["time"][step] = time_measure();
 
+    dataput.time_tag() << "start writing : normal" << std::endl;
     dataput.output_result(file_name["normal"], domain_time, results_normal);
+    dataput.time_tag() << "finish writing : normal" << std::endl;
 
 
     // 2dim resutls set 
@@ -146,16 +149,18 @@ struct PhysicalQuantities{
     std::unordered_map<std::string, std::unordered_map< std::string, std::vector<double> > > domain_2d;
 
     for(const auto& key  : quantities_2d_list){
+      values_name[key].push_back(key);
+      values_name[key].push_back("error_"+key);
+
       results_2d[key] 
-          = std::vector< std::vector<double> >(N_total_data, std::vector<double>(num_particles,0.0));
+          = std::vector< std::vector<double> >(N_total_data, std::vector<double>(Ns_observe,0.0));
       results_2d["error_" + key] 
-          = std::vector< std::vector<double> >(N_total_data, std::vector<double>(num_particles,0.0));
+          = std::vector< std::vector<double> >(N_total_data, std::vector<double>(Ns_observe,0.0));
+
       for(int step = 0; step < N_total_data; ++step){
-        for(int site = 0; site < num_particles; ++site){
+        for(int site = 0; site < Ns_observe; ++site){
           results_2d[key][step][site] = quantities_2d[key][step][site].mean();
           results_2d["error_" + key][step][site] = quantities_2d[key][step][site].error();
-          values_name[key].push_back(key);
-          values_name[key].push_back("error_"+key);
         }
       }
     }
@@ -164,12 +169,12 @@ struct PhysicalQuantities{
       = std::vector<std::string>{"GeneratorCorrelation","error_GeneratorCorrelation",
                                  "GeneratorCorrelationVariance","error_GeneratorCorrelationVariance"};
     results_2d["GeneratorCorrelationVariance"] 
-        = std::vector< std::vector<double> >(N_total_data, std::vector<double>(num_particles,0.0));
+        = std::vector< std::vector<double> >(N_total_data, std::vector<double>(Ns_observe,0.0));
     results_2d["error_GeneratorCorrelationVariance"] 
-        = std::vector< std::vector<double> >(N_total_data, std::vector<double>(num_particles,0.0));
+        = std::vector< std::vector<double> >(N_total_data, std::vector<double>(Ns_observe,0.0));
 
     for(int step = 0; step < N_total_data; ++step){
-      for(int site = 0; site < num_particles; ++site){
+      for(int site = 0; site < Ns_observe; ++site){
         results_2d["GeneratorCorrelationVariance"][step][site] 
             = quantities_2d["GeneratorCorrelation"][step][site].variance();
         results_2d["GeneratorCorrelationVariance"][step][site] 
@@ -179,22 +184,23 @@ struct PhysicalQuantities{
 
     // Eigenvalues
     file_name["SpaceCorrelation"] = settings.result_directory + "result_space_correlation.dat";
-    domain_2d["SpaceCorrelation"]["site"] = std::vector<double>(num_particles);
-    for(int i = 0 ; i < num_particles ; ++i) domain_2d["SpaceCorrelation"]["site"][i] = i;
+    domain_2d["SpaceCorrelation"]["site"] = std::vector<double>(Ns_observe);
+    for(int i = 0 ; i < Ns_observe; ++i) domain_2d["SpaceCorrelation"]["site"][i] = i;
 
     // Normalmodes
     file_name["NormalModeEnergy"] = settings.result_directory + "result_normalmode.dat";
-    domain_2d["NormalModeEnergy"]["wave_vector"] = std::vector<double>(num_particles);
-    for(int i = 0 ; i < num_particles ; ++i) domain_2d["NormalModeEnergy"]["wave_vector"][i] = i;
+    domain_2d["NormalModeEnergy"]["wave_vector"] = std::vector<double>(Ns_observe);
+    for(int i = 0 ; i < Ns_observe; ++i) domain_2d["NormalModeEnergy"]["wave_vector"][i] = i;
 
 
     // Toda conservatsion
     file_name["GeneratorCorrelation"] = settings.result_directory + "result_generator_correlation.dat";
-    domain_2d["GeneratorCorrelation"]["site"] = std::vector<double>(num_particles);
-    for(int i = 0 ; i < num_particles ; ++i) domain_2d["GeneratorCorrelation"]["site"][i] = i;
+    domain_2d["GeneratorCorrelation"]["site"] = std::vector<double>(Ns_observe);
+    for(int i = 0 ; i < Ns_observe; ++i) domain_2d["GeneratorCorrelation"]["site"][i] = i;
 
     // output 2d data 
     for(const auto& key  : quantities_2d_list){
+      dataput.time_tag() << "start writing : " << key <<  std::endl;
       dataput.output_result_3d(
                                file_name[key],
                                domain_time,
@@ -202,6 +208,7 @@ struct PhysicalQuantities{
                                values_name[key],
                                results_2d
                                );
+      dataput.time_tag() << "finish writing : " << key <<  std::endl;
     }
 
     dataput << "result output to : " ;

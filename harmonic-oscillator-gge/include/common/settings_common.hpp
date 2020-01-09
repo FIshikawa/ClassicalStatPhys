@@ -19,7 +19,6 @@ struct SettingsCommon{
   int N_time_measure = 10; //measuring of per time or linear
   int order = 0;
   int num_particles = 10; //nummer of particles
-  int N_mpi_parallel = 2; // number of mpi parallel
   int N_each = 10;// number of each parallel
   int N_adj = 2;// number of adjacent spins
   int N_total_data = 100; // number of data
@@ -36,6 +35,7 @@ struct SettingsCommon{
   int name_length;
   int num_threads;
   int mpi_error = 1;
+  int N_mpi_parallel = 2; // number of mpi parallel
   char processor_name[MPI_MAX_PROCESSOR_NAME];
 
   SettingsCommon(int argc, char **argv, int & input_counter){
@@ -80,12 +80,13 @@ struct SettingsCommon{
   template <class Dataput>
   inline void declare(Dataput & dataput){
     dataput << "<<Common Settings>>" << std::endl 
-            << "  Explore Toda lattice Generalized Gibbs Model" << std::endl
+            << "  Explore Generalized Gibbs Ensemble of Harmonic Oscillator" << std::endl
             << "  " << Integrator::name() << std::endl
+            << "  " << Lattice::name() << std::endl
 
             << "  Number of patricles : num_particles = " << num_particles << std::endl
             << "  Length of whole system : Ns = " << Ns << std::endl
-            <<" Length of observe system : Ns_observe = " << Ns_observe << std::endl
+            << "  Length of observe system : Ns_observe = " << Ns_observe << std::endl
             << "  Number of time for measure: N_time_measure = " << N_time_measure << std::endl
             << "  Number of result data (time step): N_total_data = " << N_total_data << std::endl
             << "  Order of result data : order = " << time_measure_.order() << std::endl
