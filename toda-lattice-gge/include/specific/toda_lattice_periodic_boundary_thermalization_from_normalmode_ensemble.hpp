@@ -10,6 +10,9 @@ using Ensembler = ensemble::ModeOccupancyEnsemblePeriodicBoundaryFFTW;
 using Hamiltonian = hamiltonian::TodaLattice;
 
 struct Settings : public SettingsCommon{
+  int N_normalmode = 5; //numer of time step
+  int k_initial = 0; //start wave vector filled by initialization 
+  double E_initial = 1.0; // initial energy
   double J = 1.0; //interaction constant;
   double alpha = 1.0; //interaction constant;
 
@@ -21,6 +24,13 @@ struct Settings : public SettingsCommon{
   Settings() = default;
 
   inline void set(int argc, char **argv, int & input_counter){
+    if (argc > input_counter) E_initial =        boost::lexical_cast<double>(argv[input_counter]);++input_counter;
+    if (argc > input_counter) k_initial =        boost::lexical_cast<int>(argv[input_counter]);++input_counter;
+    if (argc > input_counter) N_normalmode =     boost::lexical_cast<int>(argv[input_counter]);++input_counter;
+    if (Ns < N_normalmode + k_initial){
+      std::cerr << "k_initial + N_noramalmode should be lower than Ns" << std::endl;
+      std::exit(1);
+    } 
     if (argc > input_counter) J =     boost::lexical_cast<double>(argv[input_counter]);++input_counter;
     if (argc > input_counter) alpha = boost::lexical_cast<double>(argv[input_counter]);++input_counter;
   }
@@ -33,6 +43,11 @@ struct Settings : public SettingsCommon{
             <<  "  " << Hamiltonian::name() << std::endl
             <<  "  " << Ensembler::name() << std::endl
             <<  "  " << Lattice::name() << std::endl
+
+            << "  Energy initial : E_initial =" << E_initial << std::endl
+            << "  Number of non-zero energy normal modes : N_normalmode =" << N_normalmode << std::endl
+            << "  Start wave vector filled by initialization : k_initial =" << k_initial << std::endl
+ 
             << "  Coupling constant : J = " << J << std::endl
             << "  Coupling constant : alpha = " << alpha << std::endl;
   }

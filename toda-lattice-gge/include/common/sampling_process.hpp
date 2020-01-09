@@ -6,8 +6,7 @@
 template<typename Settings, typename PhysicalQuanties>
 void SamplingProcess(Settings & settings, PhysicalQuanties & physical_quantities){
   //
-  // seed set
-  std::size_t seed = 1234;
+  std::size_t seed = 1234*(1 + settings.process_id);
   std::minstd_rand seed_gen(seed);
   RandomGenerator mt(seed_gen());
 

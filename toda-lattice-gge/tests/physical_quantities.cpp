@@ -6,7 +6,8 @@
 
 
 TEST(PhysicalQuantitesTest, BasicTest){
-  char *argv[32] = {"./test/", "10", "10","100","10.0","1.0","1","4","100","100","100","linear","4.0","2.0"};
+  char *argv[32] = {"./test", "10", "10","100","10.0","100","100","linear",
+                    "1.0","1","4","2.0","2.0"};
   int argc = 14;
   int input_counter = 0;
   Settings settings(argc, argv, input_counter);
