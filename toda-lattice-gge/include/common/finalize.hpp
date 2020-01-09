@@ -5,6 +5,7 @@ void Finalize(Settings & settings, PhysicalQuanties & physical_quantities){
   int N_total_data  = settings.N_total_data;
   int process_id    = settings.process_id;
   int mpi_error = 0;
+  int Ns_observe = settings.Ns_observe;
 
   std::unordered_map<std::string, std::vector<double> > corrections;
   std::unordered_map<std::string, std::vector<double> > reductions;
@@ -36,13 +37,13 @@ void Finalize(Settings & settings, PhysicalQuanties & physical_quantities){
   }
 
   for(const auto& key : values_name){
-    corrections[key] = std::vector<double>(num_particles, 0.0);
-    reductions[key] = std::vector<double>(num_particles, 0.0);
+    corrections[key] = std::vector<double>(Ns_observe, 0.0);
+    reductions[key] = std::vector<double>(Ns_observe, 0.0);
   }
 
   for(const auto& key  : physical_quantities.quantities_2d_list){
     for(int step = 0; step < N_total_data; ++step){
-      for(int site = 0; site < num_particles; ++site){
+      for(int site = 0; site < Ns_observe; ++site){
         corrections["sum1"][site] = physical_quantities.quantities_2d[key][step][site].sum1();
         corrections["sum2"][site] = physical_quantities.quantities_2d[key][step][site].sum2();
         corrections["sum3"][site] = physical_quantities.quantities_2d[key][step][site].sum3();
@@ -50,10 +51,10 @@ void Finalize(Settings & settings, PhysicalQuanties & physical_quantities){
         corrections["count"][site] = static_cast<double>(physical_quantities.quantities_2d[key][step][site].count());
       }
       for(const auto& name: values_name)
-        mpi_error = MPI_Reduce(&corrections[name][0], &reductions[name][0], num_particles, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+        mpi_error = MPI_Reduce(&corrections[name][0], &reductions[name][0], Ns_observe, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 
       if(process_id == 0){
-        for(int site = 0; site < num_particles; ++site){
+        for(int site = 0; site < Ns_observe; ++site){
           physical_quantities.quantities_2d[key][step][site].reset();
           physical_quantities.quantities_2d[key][step][site].add(reductions["sum1"][site], reductions["sum2"][site], 
                                                            reductions["sum3"][site], reductions["sum4"][site],
