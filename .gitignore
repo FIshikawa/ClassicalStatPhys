@@ -36,3 +36,10 @@ build
 
 # swap
 *.swp
+
+# related simulateions
+notebook*
+parameter*
+log*
+result*
+
