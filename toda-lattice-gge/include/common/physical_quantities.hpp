@@ -151,6 +151,9 @@ struct PhysicalQuantities{
     std::unordered_map<std::string, std::unordered_map< std::string, std::vector<double> > > domain_2d;
 
     for(const auto& key  : quantities_2d_list){
+      values_name[key].push_back(key);
+      values_name[key].push_back("error_"+key);
+
       results_2d[key] 
           = std::vector< std::vector<double> >(N_total_data, std::vector<double>(num_particles,0.0));
       results_2d["error_" + key] 
@@ -159,8 +162,6 @@ struct PhysicalQuantities{
         for(int site = 0; site < num_particles; ++site){
           results_2d[key][step][site] = quantities_2d[key][step][site].mean();
           results_2d["error_" + key][step][site] = quantities_2d[key][step][site].error();
-          values_name[key].push_back(key);
-          values_name[key].push_back("error_"+key);
         }
       }
     }
