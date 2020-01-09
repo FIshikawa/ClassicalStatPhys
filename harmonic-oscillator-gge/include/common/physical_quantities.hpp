@@ -28,14 +28,13 @@ struct PhysicalQuantities{
                                                };
   std::vector<std::string> quantities_2d_list = {
                                                "NormalModeEnergy",
-                                               "TodaConservations",
-                                               "TodaEigenvalues"
+                                               "SpaceCorrelation",
+                                               "GeneratorCorrelation"
                                                };
 
   PhysicalQuantities1d quantities_1d;
   PhysicalQuantities2d quantities_2d;
 
-  integrable::TodaLaxForm toda_lax_form;
   Hamiltonian hamiltonian;
 
   template<typename Settings>
@@ -54,7 +53,6 @@ struct PhysicalQuantities{
         for(int i = 0; i < num_particles ; ++i) quantities_2d[key][step][i].reset();
       }
     }
-    toda_lax_form = settings.toda_lax_form();
     hamiltonian = settings.hamiltonian();
   }
 
@@ -65,9 +63,8 @@ struct PhysicalQuantities{
     double *v = &z[num_particles];
     double pt = 0.0;
     double v_total,x_total,sum_spectral,average_spectral,spectral_entropy;
-    std::vector<double> normalmode_energy_temp(num_particles), 
-                        toda_conservations_temp(num_particles),
-                        toda_eigenvalues_temp(num_particles);
+    std::vector<double> normalmode_energy_temp(num_particles);
+
     v_total = 0.0;
     x_total = 0.0;
     for(int i = 0; i < num_particles; ++i){
@@ -76,7 +73,7 @@ struct PhysicalQuantities{
     } 
     //set normalmode energy
     NormalModeEnergyPeriodicFFTW(z,normalmode_energy_temp);
-  
+
     sum_spectral = 0;
     spectral_entropy= 0;
     average_spectral= 0;
@@ -85,10 +82,7 @@ struct PhysicalQuantities{
       average_spectral = normalmode_energy_temp[i] / sum_spectral;
       if(average_spectral > 0) spectral_entropy -=  average_spectral * std::log(average_spectral);
     }
-  
-    //set toda_conservations
-    toda_lax_form.conservations_with_eigenvalues(z, toda_conservations_temp, toda_eigenvalues_temp);
-  
+
     //input data 
     quantities_1d["Velocity"][measure_step] << v[observe];
     quantities_1d["Velocity_total"][measure_step] << v_total;
@@ -99,8 +93,8 @@ struct PhysicalQuantities{
     quantities_1d["Potential_Energy"][measure_step] << hamiltonian.potential_energy(pt,z) / num_particles;
     quantities_1d["SpectralEntropy"][measure_step] << spectral_entropy;
     quantities_1d["EffectiveFractionOfModes"][measure_step] << std::exp(spectral_entropy) / num_particles;
-  
-  
+
+
     if(measure_step == 0){
       v_init = v[observe] - v_total;
       x_init = x[observe];
@@ -110,8 +104,9 @@ struct PhysicalQuantities{
 
     for(int i = 0; i < num_particles; ++i) {
       quantities_2d["NormalModeEnergy"][measure_step][i] << normalmode_energy_temp[i];
-      quantities_2d["TodaConservations"][measure_step][i] << toda_conservations_temp[i];
-      quantities_2d["TodaEigenvalues"][measure_step][i] << toda_eigenvalues_temp[i];
+      quantities_2d["SpaceCorrelation"][measure_step][i] << x[observe] * x[i];
+      quantities_2d["GeneratorCorrelation"][measure_step][i] << 0.5 * (v[observe] * v[observe] - x[observe] * x[observe]) *
+                                                                0.5 * (v[i] * v[i] - x[i] * x[i]);
     }
     ++measure_step;
   }
@@ -165,27 +160,27 @@ struct PhysicalQuantities{
       }
     }
 
-    values_name["TodaConservations"] 
-      = std::vector<std::string>{"TodaConservations","error_TodaConservations",
-                                 "TodaConservationsVariance","error_TodaConservationsVariance"};
-    results_2d["TodaConservationsVariance"] 
+    values_name["GeneratorCorrelation"] 
+      = std::vector<std::string>{"GeneratorCorrelation","error_GeneratorCorrelation",
+                                 "GeneratorCorrelationVariance","error_GeneratorCorrelationVariance"};
+    results_2d["GeneratorCorrelationVariance"] 
         = std::vector< std::vector<double> >(N_total_data, std::vector<double>(num_particles,0.0));
-    results_2d["error_TodaConservationsVariance"] 
+    results_2d["error_GeneratorCorrelationVariance"] 
         = std::vector< std::vector<double> >(N_total_data, std::vector<double>(num_particles,0.0));
 
     for(int step = 0; step < N_total_data; ++step){
       for(int site = 0; site < num_particles; ++site){
-        results_2d["TodaConservationsVariance"][step][site] 
-            = quantities_2d["TodaConservations"][step][site].variance();
-        results_2d["error_TodaConservationsVariance"][step][site] 
-          = quantities_2d["TodaConservations"][step][site].variance_error();
+        results_2d["GeneratorCorrelationVariance"][step][site] 
+            = quantities_2d["GeneratorCorrelation"][step][site].variance();
+        results_2d["GeneratorCorrelationVariance"][step][site] 
+          = quantities_2d["GeneratorCorrelation"][step][site].variance_error();
       }
     }
 
     // Eigenvalues
-    file_name["TodaEigenvalues"] = settings.result_directory + "result_toda_eigenvalues.dat";
-    domain_2d["TodaEigenvalues"]["number"] = std::vector<double>(num_particles);
-    for(int i = 0 ; i < num_particles ; ++i) domain_2d["TodaEigenvalues"]["number"][i] = i;
+    file_name["SpaceCorrelation"] = settings.result_directory + "result_space_correlation.dat";
+    domain_2d["SpaceCorrelation"]["site"] = std::vector<double>(num_particles);
+    for(int i = 0 ; i < num_particles ; ++i) domain_2d["SpaceCorrelation"]["site"][i] = i;
 
     // Normalmodes
     file_name["NormalModeEnergy"] = settings.result_directory + "result_normalmode.dat";
@@ -194,9 +189,9 @@ struct PhysicalQuantities{
 
 
     // Toda conservatsion
-    file_name["TodaConservations"] = settings.result_directory + "result_toda_conservations.dat";
-    domain_2d["TodaConservations"]["power"] = std::vector<double>(num_particles);
-    for(int i = 0 ; i < num_particles ; ++i) domain_2d["TodaConservations"]["power"][i] = i;
+    file_name["GeneratorCorrelation"] = settings.result_directory + "result_generator_correlation.dat";
+    domain_2d["GeneratorCorrelation"]["site"] = std::vector<double>(num_particles);
+    for(int i = 0 ; i < num_particles ; ++i) domain_2d["GeneratorCorrelation"]["site"][i] = i;
 
     // output 2d data 
     for(const auto& key  : quantities_2d_list){
