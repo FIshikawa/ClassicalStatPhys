@@ -27,6 +27,8 @@ public:
     Q = Q / num_;
     for(int j = 0; j < num_ ; ++j) q[j] -= Q; //set x
     for(int i = 1; i < num_ ; ++i) x[i] = x[i-1] + q[i-1];
+
+    equilibrate_velocity(z, mt);
   }
 
   template <class Rand>
