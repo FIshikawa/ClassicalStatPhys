@@ -165,20 +165,20 @@ struct PhysicalQuantities{
       }
     }
 
-    values_name["GeneratorCorrelation"] 
-      = std::vector<std::string>{"GeneratorCorrelation","error_GeneratorCorrelation",
-                                 "GeneratorCorrelationVariance","error_GeneratorCorrelationVariance"};
-    results_2d["GeneratorCorrelationVariance"] 
+    values_name["NormalModeEnergy"] 
+      = std::vector<std::string>{"NormalModeEnergy","error_NormalModeEnergy",
+                                 "NormalModeEnergyVariance","error_NormalModeEnergyVariance"};
+    results_2d["NormalModeEnergyVariance"] 
         = std::vector< std::vector<double> >(N_total_data, std::vector<double>(Ns_observe,0.0));
-    results_2d["error_GeneratorCorrelationVariance"] 
+    results_2d["error_NormalModeEnergyVariance"] 
         = std::vector< std::vector<double> >(N_total_data, std::vector<double>(Ns_observe,0.0));
 
     for(int step = 0; step < N_total_data; ++step){
       for(int site = 0; site < Ns_observe; ++site){
-        results_2d["GeneratorCorrelationVariance"][step][site] 
-            = quantities_2d["GeneratorCorrelation"][step][site].variance();
-        results_2d["GeneratorCorrelationVariance"][step][site] 
-          = quantities_2d["GeneratorCorrelation"][step][site].variance_error();
+        results_2d["NormalModeEnergyVariance"][step][site] 
+            = quantities_2d["NormalModeEnergy"][step][site].variance();
+        results_2d["error_NormalModeEnergyVariance"][step][site] 
+          = quantities_2d["NormalModeEnergy"][step][site].variance_error();
       }
     }
 
