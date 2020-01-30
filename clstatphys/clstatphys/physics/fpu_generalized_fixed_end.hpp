@@ -18,64 +18,33 @@ public:
   double energy(double t, std::vector<double> const& z) const {
     return potential_energy(t, z) + kinetic_energy(t, z);
   }
+
+  // The displacements are defined as r_n = u_n - u_n+1
+  // and the Toda potential is defined as r_n^2 + r_n^3 + r_n^4 + r_n^5 + r_n^6 
+
   double potential_energy(double  t, std::vector<double> const& z) const {
-    double ene = 0;
-    for(int i = -1; i < n_ ; ++i) ene += target_potential_energy(i,z,t);
-    return ene/2.0;
-  }
-  double kinetic_energy(double /* t */, std::vector<double> const& z) const {
-    double ene = 0;
-    for(int i = 0; i < n_; ++i) ene += target_kinetic_energy(i,z);
+    const double *x = &z[0];
+    double ene = 0, dx = 0;
+    for(int i = 1; i < n_; ++i){
+      dx = x[table_[i][0]] - x[i];
+      ene += J_ * dx * dx * 0.5 + beta_ * dx * dx * dx * dx * 0.25 + delta_ * dx * dx * dx * dx * dx * dx / 6.0;
+      ene += alpha_ * dx * dx * dx / 3.0 + gamma_ * dx * dx * dx * dx * dx / 5.0;
+    }
+    dx = - x[0];
+    ene += J_ * dx * dx * 0.5 + beta_ * dx * dx * dx * dx * 0.25 + delta_ * dx * dx * dx * dx * dx * dx / 6.0;
+    ene += alpha_ * dx * dx * dx / 3.0 + gamma_ * dx * dx * dx * dx * dx / 5.0;
+
+    dx = x[n_-1];
+    ene += J_ * dx * dx * 0.5 + beta_ * dx * dx * dx * dx * 0.25 + delta_ * dx * dx * dx * dx * dx * dx / 6.0;
+    ene += alpha_ * dx * dx * dx / 3.0 + gamma_ * dx * dx * dx * dx * dx / 5.0;
+
     return ene;
   }
 
-  double target_potential_energy(int l, std::vector<double> const& z, double t) const {
-    const double *x = &z[0];
+  double kinetic_energy(double /* t */, std::vector<double> const& z) const {
     double ene = 0;
-    if( l != -1){
-      if(l == 0){
-        double dx = - x[l];
-        ene += J_ * dx * dx * 0.5 + beta_ * dx * dx * dx * dx * 0.25 + delta_ * dx * dx * dx * dx * dx * dx / 6.0;
-        ene += alpha_ * dx * dx * dx / 3.0 + gamma_ * dx * dx * dx * dx * dx / 5.0;
-      }
-      else if(l == n_ - 1){
-        double dx = x[l];
-        ene += J_ * dx * dx * 0.5 + beta_ * dx * dx * dx * dx * 0.25 + delta_ * dx * dx * dx * dx * dx * dx / 6.0;
-        ene += alpha_ * dx * dx * dx / 3.0 + gamma_ * dx * dx * dx * dx * dx / 5.0;
-      }
-      for(int i = 0; i < Nd_; ++i){
-        double dx = x[l] - x[table_[l][i]];
-        ene += J_ * dx * dx * 0.5 + beta_ * dx * dx * dx * dx * 0.25 + delta_ * dx * dx * dx * dx * dx * dx / 6.0;
-      }
-      for(int i = 0; i < Nd_/2; ++i){
-        double dx = x[table_[l][i]] - x[l];
-        ene += alpha_ * dx * dx * dx / 3.0 + gamma_ * dx * dx * dx * dx * dx / 5.0;
-      }
-      for(int i = Nd_/2; i < Nd_ ; ++i){
-        double dx = x[l] - x[table_[l][i]];
-        ene += alpha_ * dx * dx * dx / 3.0 + gamma_ * dx * dx * dx * dx * dx / 5.0;
-      }
-    }
-    else{
-      for(auto& i : {0, n_ -1}){
-        if(i == 0){
-          double dx = - x[0];
-          ene += alpha_ * dx * dx * dx / 3.0 + gamma_ * dx * dx * dx * dx * dx / 5.0;
-          ene += J_ * dx * dx * 0.5 + beta_ * dx * dx * dx * dx * 0.25 + delta_ * dx * dx * dx * dx * dx * dx / 6.0;
-        } 
-        else{
-          double dx = x[n_-1];
-          ene += alpha_ * dx * dx * dx / 3.0 + gamma_ * dx * dx * dx * dx * dx / 5.0;
-          ene += J_ * dx * dx * 0.5 + beta_ * dx * dx * dx * dx * 0.25 + delta_ * dx * dx * dx * dx * dx * dx / 6.0;
-        } 
-      }
-    }
-    return ene;
-  }
-  double target_kinetic_energy(int l, std::vector<double> const& z) const {
     const double *v = &z[n_];
-    double ene = 0;
-    ene += 0.5 * v[l]*v[l];
+    for(int i = 0; i < n_; ++i) ene += 0.5 * v[i] * v[i];
     return ene;
   }
 
@@ -85,25 +54,39 @@ public:
     const double *v = &z[n_];
     double *fx = &force[0];
     double *fv = &force[n_];
+    double dx;
     for(int i = 0; i < n_ ; ++i) fx[i] = v[i];
-    for(int i = 0; i < n_ ; ++i){
+    for(int i = 1; i < n_-1; ++i){
       fv[i] = 0.0;
-      for(int d = 0; d < Nd_; ++d){
-        double dx = (x[i] -x[table_[i][d]]);
-        fv[i] += -1.0 * (  J_ * dx  +  beta_ * dx * dx * dx + delta_ * dx * dx * dx * dx * dx);
-      }
-      for(int d = 0; d < Nd_/2; ++d){
-        double dx = x[table_[i][d]] - x[i];
-        fv[i] +=  alpha_ * dx * dx + gamma_ * dx * dx * dx * dx;
-      }
-      for(int d = Nd_/2; d < Nd_ ; ++d){
-        double dx = (x[i] -x[table_[i][d]]);
-        fv[i] -=  alpha_ * dx * dx + gamma_ * dx * dx * dx * dx;
-      }
+
+      dx = x[table_[i][0]] - x[i];
+      fv[i] += J_ * dx  +  beta_ * dx * dx * dx + delta_ * dx * dx * dx * dx * dx;
+      fv[i] +=  alpha_ * dx * dx + gamma_ * dx * dx * dx * dx;
+
+      dx = x[i] - x[table_[i][1]];
+      fv[i] -= J_ * dx  +  beta_ * dx * dx * dx + delta_ * dx * dx * dx * dx * dx;
+      fv[i] -=  alpha_ * dx * dx + gamma_ * dx * dx * dx * dx;
     }
-    for(auto& i : {0, n_ - 1}) fv[i] -= J_ * x[i] + beta_ * x[i] * x[i] * x[i] + delta_ * x[i] * x[i] * x[i] * x[i] * x[i];
-    fv[0] += alpha_ * x[0] * x[0] + gamma_ * x[0] * x[0] * x[0] * x[0];
-    fv[n_ - 1] -= alpha_ * x[n_ - 1] * x[n_ - 1] + gamma_ * x[n_ - 1] * x[n_ - 1] * x[n_ - 1] * x[n_ - 1]; 
+    fv[0] = 0.0;
+
+    dx = - x[0];
+    fv[0] += J_ * dx  +  beta_ * dx * dx * dx + delta_ * dx * dx * dx * dx * dx;
+    fv[0] +=  alpha_ * dx * dx + gamma_ * dx * dx * dx * dx;
+
+    dx = x[0] - x[table_[0][1]];
+    fv[0] -= J_ * dx  +  beta_ * dx * dx * dx + delta_ * dx * dx * dx * dx * dx;
+    fv[0] -=  alpha_ * dx * dx + gamma_ * dx * dx * dx * dx;
+
+    fv[n_-1] = 0.0;
+
+    dx = x[table_[n_-1][0]] - x[n_-1];
+    fv[n_-1] += J_ * dx  +  beta_ * dx * dx * dx + delta_ * dx * dx * dx * dx * dx;
+    fv[n_-1] +=  alpha_ * dx * dx + gamma_ * dx * dx * dx * dx;
+
+    dx = x[n_-1];
+    fv[n_-1] -= J_ * dx  +  beta_ * dx * dx * dx + delta_ * dx * dx * dx * dx * dx;
+    fv[n_-1] -=  alpha_ * dx * dx + gamma_ * dx * dx * dx * dx;
+
   }
 
   int Nd()const { return Nd_ ;}
