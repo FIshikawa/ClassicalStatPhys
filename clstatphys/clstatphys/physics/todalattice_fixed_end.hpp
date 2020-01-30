@@ -16,60 +16,28 @@ public:
   double energy(double t, std::vector<double> const& z) const {
     return potential_energy(t, z) + kinetic_energy(t, z);
   }
-  double potential_energy(double  t, std::vector<double> const& z) const {
-    double ene = 0;
-    for(int i = -1; i < n_ ; ++i) ene += target_potential_energy(i,z,t);
-    return ene/2.0;
-  }
-  double kinetic_energy(double /* t */, std::vector<double> const& z) const {
-    double ene = 0;
-    for(int i = 0; i < n_; ++i) ene += target_kinetic_energy(i,z);
-    return ene;
-  }
 
-  // The displacements are defined as r_n = u_n+1 - u_n
+  // The displacements are defined as r_n = u_n - u_n+1
   // and the Toda potential is defined as J * exp(a * r_n ) -  a * r_n -1
 
-  double target_potential_energy(int l, std::vector<double> const& z, double t) const {
+  double potential_energy(double  t, std::vector<double> const& z) const {
     const double *x = &z[0];
     double ene = 0;
-    if( l != -1){
-      if(l == 0){
-        double dx = - x[l];
-        ene += J_ * (std::exp( alpha_ * dx) - 1 - alpha_ * dx);
-      }
-      else if(l == n_ - 1){
-        double dx = x[l];
-        ene += J_ * (std::exp( alpha_ * dx) - 1 - alpha_ * dx);
-      }
-      for(int i = 0; i < Nd_/2; ++i){
-        double dx =  x[table_[l][i]] - x[l];
-        ene += J_ * (std::exp( alpha_ * dx) - 1 - alpha_ * dx);
-      }
-      for(int i = Nd_/2; i < Nd_ ; ++i){
-        double dx = x[l] - x[table_[l][i]];
-        ene += J_ * (std::exp( alpha_ * dx) - 1 - alpha_ * dx);
-      }
-    }
-    else{
-      for(auto& i : {0, n_ -1}){
-        if(i == 0){
-          double dx = - x[i];
-          ene += J_ * (std::exp(alpha_ * dx) - 1 - alpha_ * dx);
-        } 
-        else{
-          double dx = x[i];
-          ene += J_ * (std::exp(alpha_ * dx) - 1 - alpha_ * dx);
-        }
-      }
+    double dx = - x[0];
+    ene += J_ * (std::exp( alpha_ * dx) - 1 - alpha_ * dx);
+    dx = x[n_-1];
+    ene += J_ * (std::exp( alpha_ * dx) - 1 - alpha_ * dx);
+    for(int i = 1 ; i < n_; ++i){
+      dx = x[table_[i][0]] - x[i];
+      ene += J_ * (std::exp( alpha_ * dx) - 1 - alpha_ * dx);
     }
     return ene;
   }
 
-  double target_kinetic_energy(int l, std::vector<double> const& z) const {
-    const double *v = &z[n_];
+  double kinetic_energy(double /* t */, std::vector<double> const& z) const {
     double ene = 0;
-    ene += 0.5 * v[l]*v[l];
+    const double *v = &z[n_];
+    for(int i = 0; i < n_; ++i) ene += 0.5 * v[i] * v[i];
     return ene;
   }
 
@@ -80,7 +48,7 @@ public:
     double *fx = &force[0];
     double *fv = &force[n_];
     for(int i = 0; i < n_ ; ++i) fx[i] = v[i];
-    for(int i = 0; i < n_ ; ++i){
+    for(int i = 1; i < n_-1; ++i){
       fv[i] = 0.0;
       for(int d = 0; d < Nd_/2; ++d){
         double dx = x[table_[i][d]] - x[i];
@@ -91,7 +59,13 @@ public:
         fv[i] -= J_ * alpha_ * ( std::exp(alpha_ * dx) - 1);
       }
     }
+    fv[0] = 0.0;
     fv[0] += J_* alpha_ * ( std::exp(- alpha_ * x[0]) - 1);
+    if(n_ > 1) fv[0] -= J_* alpha_ * ( std::exp(  alpha_ * (x[0] - x[1])) - 1);
+    if(n_ > 1){
+      fv[n_-1] = 0.0;
+      fv[n_-1] +=  J_ * alpha_ * ( std::exp( alpha_ * (x[n_ -2] - x[n_-1])) - 1);
+    }
     fv[n_-1] -=  J_ * alpha_ * ( std::exp( alpha_ * x[n_ - 1]) - 1);
   }
 

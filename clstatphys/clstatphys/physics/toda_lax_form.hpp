@@ -11,46 +11,72 @@ namespace integrable{
 
 class TodaLaxForm{
 public:
-  TodaLaxForm(int num_particles, double J, double alpha, std::vector<std::vector<int > > table, int N_adj) : num_particles_(num_particles), J_(J), table_(table),Nd_(N_adj),alpha_(alpha){}
+  TodaLaxForm(int num_particles, double J, double alpha, std::string boundary="periodic") 
+    : num_particles_(num_particles), J_(J), alpha_(alpha), boundary_(boundary)
+  { 
+    if(boundary_ == "periodic") matrix_size_ = num_particles_;
+    else matrix_size_ = num_particles_ + 1;
+  }
   TodaLaxForm() = default;
 
   rokko::dlmatrix L_matrix(std::vector<double>& z){
-    rokko::dlmatrix L = rokko::dlmatrix::Zero(num_particles_, num_particles_);
+
+    rokko::dlmatrix L = rokko::dlmatrix::Zero(matrix_size_, matrix_size_);
     L(0, 0) = toda_momentum(z, 0);
     L(0, 1) = toda_position(z, 0);
-    L(0, num_particles_-1) = toda_position(z, num_particles_-1);
-    for(int i = 1; i < num_particles_-1; ++i){
+    L(0, matrix_size_-1) = toda_position(z, matrix_size_-1);
+    for(int i = 1; i < matrix_size_-1; ++i){
       L(i, i)   = toda_momentum(z, i); 
       L(i, i+1) = toda_position(z, i);
       L(i, i-1) = toda_position(z, i-1);
     }
-    L(num_particles_-1, num_particles_-1) = toda_momentum(z, num_particles_-1);
-    L(num_particles_-1, 0) = toda_position(z, num_particles_-1);
-    L(num_particles_-1, num_particles_-2) = toda_position(z, num_particles_-2);
+    L(matrix_size_-1, matrix_size_-1) = toda_momentum(z, matrix_size_-1);
+    L(matrix_size_-1, 0) = toda_position(z, matrix_size_-1);
+    L(matrix_size_-1, matrix_size_-2) = toda_position(z, matrix_size_-2);
     return L;
   }
 
   rokko::dlmatrix B_matrix(std::vector<double>& z){
-    rokko::dlmatrix B(num_particles_, num_particles_);
+    int matrix_size_;
+    rokko::dlmatrix B(matrix_size_, matrix_size_);
     B(0, 1) = -1.0 * toda_position(z, 0);
-    B(0, num_particles_-1) = toda_position(z, num_particles_-1);
-    for(int i = 1; i < num_particles_-1; ++i){
+    B(0, matrix_size_-1) = toda_position(z, matrix_size_-1);
+    for(int i = 1; i < matrix_size_-1; ++i){
       B(i, i+1) = toda_position(z, i);
       B(i, i-1) = -1.0 * toda_position(z, i-1);
     }
-    B(num_particles_-1, 0) = -1.0 * toda_momentum(z, num_particles_-1);
-    B(num_particles_-1, num_particles_-2) = toda_momentum(z, num_particles_-2);
+    B(matrix_size_-1, 0) = -1.0 * toda_momentum(z, matrix_size_-1);
+    B(matrix_size_-1, matrix_size_-2) = toda_momentum(z, matrix_size_-2);
     return B;
   }
 
+  // The displacements are defined as r_n = u_n - u_n+1
+  // and the Toda potential is defined as J * exp(a * r_n ) -  a * r_n -1
+
   double toda_position(std::vector<double>& z, int const& n){
     const double *x = &z[0];
-    return 0.5 * std::sqrt(J_) * alpha_ * std::exp(0.5*alpha_*(x[table_[n][1]]-x[n]));
+    int now_index = n % matrix_size_;
+    int target_index = (matrix_size_ + now_index - 1) % matrix_size_;
+    double x_now, x_target;
+
+    if(now_index == num_particles_) x_now = 0.0;
+    else x_now = x[now_index];
+
+    if(target_index == num_particles_) x_target = 0.0;
+    else x_target = x[target_index];
+
+    return 0.5 * std::sqrt(J_) * alpha_ * std::exp(0.5*alpha_*(x_target-x_now));
   }
 
   double toda_momentum(std::vector<double>& z, int const& n){
+    int now_index = n % matrix_size_;
+    double p_now;
     const double *p = &z[num_particles_];
-    return 0.5 * alpha_ * p[n];
+
+    if(now_index == num_particles_) p_now = 0.0;
+    else p_now = p[now_index];
+
+    return 0.5 * alpha_ * p_now;
   }
 
   void conservations(std::vector<double>& z, std::vector<double>& conservations){
@@ -95,11 +121,9 @@ public:
   }
 
 private:
-  int Nd_;
-  int num_particles_;
-  double J_;
-  double alpha_;
-  std::vector<std::vector<int> > table_;
+  int num_particles_, matrix_size_;
+  double J_, alpha_;
+  std::string boundary_;
 };//end TodaLattice
 
 }// end namespace
