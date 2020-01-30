@@ -45,16 +45,6 @@ class FPUFixedEndTest: public ::testing::Test {
 
 TEST_F(FPUFixedEndTest, EnergyTest) {
   hamiltonian::FPUFixedEnd hamiltonian(num_particles,J,alpha,beta,pair_table,N_adj);
-  double energy_potential = 0.0;
-  double energy_kinetic = 0.0;
-  for(int i = 0; i < num_particles; ++i){
-    energy_potential += hamiltonian.target_potential_energy(i,z,0);
-    energy_kinetic += hamiltonian.target_kinetic_energy(i,z);
-  }
-  energy_potential += hamiltonian.target_potential_energy(-1,z,0);
-  energy_potential *= 0.5;
-  EXPECT_DOUBLE_EQ(energy_kinetic, hamiltonian.kinetic_energy(0,z));
-  EXPECT_DOUBLE_EQ(energy_potential, hamiltonian.potential_energy(0,z));
   EXPECT_DOUBLE_EQ(expected_energy_potential, hamiltonian.potential_energy(0,z));
   EXPECT_DOUBLE_EQ(expected_energy_kinetic, hamiltonian.kinetic_energy(0,z));
   EXPECT_DOUBLE_EQ(expected_energy_total, hamiltonian.energy(0,z));
