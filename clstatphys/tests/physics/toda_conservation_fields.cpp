@@ -48,7 +48,7 @@ class TodaConservationFieldsTest: public ::testing::Test {
 
 TEST_F(TodaConservationFieldsTest, ConservationTest) {
   hamiltonian::TodaLattice hamiltonian(num_particles,J,alpha,pair_table,N_adj);
-  integrable::TodaLaxForm toda_lax_form(num_particles,J,alpha,pair_table,N_adj);
+  integrable::TodaLaxForm toda_lax_form(num_particles,J,alpha,"periodic");
   integrable::TodaConservationFields toda_conservation_fields(num_particles,J,alpha,pair_table,N_adj);
 
   integrator::RungeKutta4th integrator(2*num_particles);

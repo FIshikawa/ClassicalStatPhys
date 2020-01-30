@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <clstatphys/physics/todalattice_fixed_end.hpp>
-#include <clstatphys/lattice/chain_open_boundary.hpp>
+#include <clstatphys/lattice/chain.hpp>
 #include <clstatphys/integrator/runge_kutta_4th.hpp>
 
 namespace {
@@ -9,17 +9,13 @@ class TodaLatticeFixedEndTest: public ::testing::Test {
   virtual void SetUp(){
     // set by lattice::Chain
     int Ns = 5;
-    lattice::ChainOpenBoundary lattice(Ns);
+    lattice::Chain lattice(Ns);
     num_particles = lattice.set_num_particles(Ns); 
     ASSERT_EQ(num_particles, Ns);
     N_adj = lattice.number_adjacent();
     ASSERT_EQ(N_adj,2);
     pair_table = std::vector<std::vector<int> >(num_particles,std::vector<int>(N_adj));
     lattice.create_table(pair_table);
-    ASSERT_EQ(pair_table[0][0],0);
-    ASSERT_EQ(pair_table[0][1],1);
-    ASSERT_EQ(pair_table[num_particles-1][0],num_particles-2);
-    ASSERT_EQ(pair_table[num_particles-1][1],num_particles-1);
     // set interaction constants 
     J = 1.0;
     alpha = 1.0;
@@ -44,16 +40,7 @@ class TodaLatticeFixedEndTest: public ::testing::Test {
 
 TEST_F(TodaLatticeFixedEndTest, EnergyTest) {
   hamiltonian::TodaLatticeFixedEnd hamiltonian(num_particles,J,alpha,pair_table,N_adj);
-  double energy_potential = 0.0;
-  double energy_kinetic = 0.0;
-  for(int i = 0; i < num_particles; ++i){
-    energy_potential += hamiltonian.target_potential_energy(i,z,0);
-    energy_kinetic += hamiltonian.target_kinetic_energy(i,z);
-  }
-  energy_potential += hamiltonian.target_potential_energy(-1,z,0);
-  energy_potential *= 0.5;
-  EXPECT_DOUBLE_EQ(energy_kinetic, hamiltonian.kinetic_energy(0,z));
-  EXPECT_DOUBLE_EQ(energy_potential, hamiltonian.potential_energy(0,z));
+
   EXPECT_DOUBLE_EQ(expected_energy_potential, hamiltonian.potential_energy(0,z));
   EXPECT_DOUBLE_EQ(expected_energy_kinetic, hamiltonian.kinetic_energy(0,z));
   EXPECT_DOUBLE_EQ(expected_energy_total, hamiltonian.energy(0,z));

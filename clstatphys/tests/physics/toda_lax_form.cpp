@@ -47,7 +47,7 @@ class TodaLaxFormTest: public ::testing::Test {
 
 TEST_F(TodaLaxFormTest, ConservationTest) {
   hamiltonian::TodaLattice hamiltonian(num_particles,J,alpha,pair_table,N_adj);
-  integrable::TodaLaxForm toda_lax_form(num_particles,J,alpha,pair_table,N_adj);
+  integrable::TodaLaxForm toda_lax_form(num_particles,J,alpha,"periodic");
   // set integrator 
   rokko::dlmatrix L = toda_lax_form.L_matrix(z);
   std::cout << " L : " << std::endl 
