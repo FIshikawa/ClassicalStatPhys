@@ -20,7 +20,7 @@ public:
       initial_relax_time_(initial_relax_time) {hamiltonian_ = hamiltonian;}
   
   template<class Rand>
-  void set_initial_state(std::vector<double> z, Rand & mt){
+  void set_initial_state(std::vector<double> & z, Rand & mt){
     int counter = 0;
     for(int step = 0; step < initial_relax_time_; ++step) EnsemblerOrigin::montecarlo(z, counter, hamiltonian_, mt);
   }
