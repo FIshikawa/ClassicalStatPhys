@@ -12,6 +12,7 @@ public:
   static std::string name() { return "Toda Lattice Hamiltonian"; }
   // z[0...n-1]: position, z[n...2n-1]: momentum
   TodaLattice(int num_particles, double J, double alpha, std::vector<std::vector<int > > table, int N_adj) : n_(num_particles), J_(J), table_(table),Nd_(N_adj),alpha_(alpha){}
+  TodaLattice() = default;
 
   double energy(double t, std::vector<double> const& z) const {
     return potential_energy(t, z) + kinetic_energy(t, z);
