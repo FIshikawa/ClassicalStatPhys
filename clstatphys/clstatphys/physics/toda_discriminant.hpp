@@ -12,7 +12,7 @@ namespace integrable{
 
 class TodaDiscriminant{
 public:
-  TodaDiscriminant(int num_particles, rokko::dlmatrix L_matrix, std::string boundary="periodic") 
+  TodaDiscriminant(int const num_particles, rokko::dlmatrix const & L_matrix, std::string boundary="periodic") 
     : num_particles_(num_particles), boundary_(boundary)
   { 
     if(boundary_ == "periodic") matrix_size_ = num_particles_;
@@ -45,8 +45,7 @@ public:
       i_previous = (matrix_size_ + i - 1) % matrix_size_;
 
       phi_next = -(L_matrix_(i,i_previous) * phi_previous 
-                    + L_matrix_(i,i) * phi_now 
-                    - x * phi_now) / L_matrix_(i,i_next);
+                    + (L_matrix_(i,i) - x) * phi_now) / L_matrix_(i,i_next);
       phi_previous = phi_now;
       phi_now = phi_next;
     }
