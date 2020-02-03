@@ -45,10 +45,10 @@ public:
   double sum2() const { return sum2_;}
   double sum3() const { return sum3_;}
   double sum4() const { return sum4_;}
-  double moment1() const { return (count_ > 1) ? (sum1_ / count()) : 0; }
-  double moment2() const { return (count_ > 1) ? (sum2_ / count()) : 0; }
-  double moment3() const { return (count_ > 1) ? (sum3_ / count()) : 0; }
-  double moment4() const { return (count_ > 1) ? (sum4_ / count()) : 0; }
+  double moment1() const { return count() ? (sum1_ / count()) : 0; }
+  double moment2() const { return count() ? (sum2_ / count()) : 0; }
+  double moment3() const { return count() ? (sum3_ / count()) : 0; }
+  double moment4() const { return count() ? (sum4_ / count()) : 0; }
 
   double central_moment1() const { return 0; }
   double central_moment2() const {
