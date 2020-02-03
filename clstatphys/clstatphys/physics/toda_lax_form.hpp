@@ -15,11 +15,15 @@ public:
     : num_particles_(num_particles), J_(J), alpha_(alpha), boundary_(boundary)
   { 
     if(boundary_ == "periodic") matrix_size_ = num_particles_;
-    else matrix_size_ = num_particles_ + 1;
+    else if (boundary == "fixed") matrix_size_ = num_particles_ + 1;
+    else{
+      std::cerr << "boundary option must be periodic or fixed." << std::endl;
+      std::exit(1);
+    }
   }
   TodaLaxForm() = default;
 
-  rokko::dlmatrix L_matrix(std::vector<double>& z){
+  rokko::dlmatrix L_matrix(std::vector<double> const & z){
 
     rokko::dlmatrix L = rokko::dlmatrix::Zero(matrix_size_, matrix_size_);
     L(0, 0) = toda_momentum(z, 0);
@@ -53,10 +57,10 @@ public:
   // The displacements are defined as r_n = u_n - u_n+1
   // and the Toda potential is defined as J * exp(a * r_n ) -  a * r_n -1
 
-  double toda_position(std::vector<double>& z, int const& n){
+  double toda_position(std::vector<double> const & z, int const& n){
     const double *x = &z[0];
-    int now_index = n % matrix_size_;
-    int target_index = (matrix_size_ + now_index - 1) % matrix_size_;
+    int now_index = (n + matrix_size_) % matrix_size_;
+    int target_index = (matrix_size_ + now_index + 1) % matrix_size_;
     double x_now, x_target;
 
     if(now_index == num_particles_) x_now = 0.0;
@@ -65,11 +69,11 @@ public:
     if(target_index == num_particles_) x_target = 0.0;
     else x_target = x[target_index];
 
-    return 0.5 * std::sqrt(J_) * alpha_ * std::exp(0.5*alpha_*(x_target-x_now));
+    return 0.5 * std::sqrt(J_) * alpha_ * std::exp(0.5*alpha_*(x_now -x_target));
   }
 
-  double toda_momentum(std::vector<double>& z, int const& n){
-    int now_index = n % matrix_size_;
+  double toda_momentum(std::vector<double> const & z, int const& n){
+    int now_index = (n + matrix_size_) % matrix_size_;
     double p_now;
     const double *p = &z[num_particles_];
 
@@ -79,7 +83,7 @@ public:
     return 0.5 * alpha_ * p_now;
   }
 
-  void conservations(std::vector<double>& z, std::vector<double>& conservations){
+  void conservations(std::vector<double> const & z, std::vector<double>& conservations){
     std::vector<double> w(num_particles_);
     eigenvalues(z,w);
     std::vector<double> w_temp = w;
@@ -95,7 +99,7 @@ public:
   }
 
   void conservations_with_eigenvalues(
-                                      std::vector<double>& z,
+                                      std::vector<double> const & z,
                                       std::vector<double>& conservations,
                                       std::vector<double>& eigenvalues_vect
                                       ){
@@ -113,7 +117,7 @@ public:
       }
     }
   }
-  void eigenvalues(std::vector<double>& z, std::vector<double>& w){
+  void eigenvalues(std::vector<double> const & z, std::vector<double>& w){
     rokko::dlmatrix L = L_matrix(z);
     rokko::dlvector w_temp(num_particles_);
     int info = rokko::lapack::syev('V', 'U', L, w_temp);
