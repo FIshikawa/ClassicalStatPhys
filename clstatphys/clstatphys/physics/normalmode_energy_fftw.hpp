@@ -5,7 +5,7 @@
 #include <vector>
 #include <clstatphys/physics/fixed_boundary_normalmode_fftw.hpp>
 
-void NormalModeEnergyFFTW(std::vector<double>& z, std::vector<double>& Ek){
+void NormalModeEnergyFFTW(std::vector<double> const & z, std::vector<double>& Ek){
   int num_particles = z.size() / 2;
   const double *x = &z[0];
   const double *p = &z[num_particles];

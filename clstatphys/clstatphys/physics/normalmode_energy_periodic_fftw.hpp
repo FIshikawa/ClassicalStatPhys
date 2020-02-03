@@ -5,7 +5,7 @@
 #include <vector>
 #include <clstatphys/physics/periodic_boundary_normalmode_fftw.hpp>
 
-void NormalModeEnergyPeriodicFFTW(std::vector<double>& z, std::vector<double>& Ek){
+void NormalModeEnergyPeriodicFFTW(std::vector<double> const& z, std::vector<double>& Ek){
   int num_particles = z.size() / 2;
   const double *x = &z[0];
   const double *p = &z[num_particles];
