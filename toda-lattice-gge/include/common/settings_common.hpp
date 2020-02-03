@@ -110,7 +110,7 @@ struct SettingsCommon{
                                               std::vector<int>(N_adj)
                                               );
     lattice_t.create_table(pair_table);
-    return integrable::TodaLaxForm(num_particles,1.0,1.0);
+    return integrable::TodaLaxForm(num_particles,1.0,1.0,"periodic");
   }
 
   inline void finalize(){mpi_error = MPI_Finalize();};

@@ -4,6 +4,8 @@
 #include <unordered_map>
 #include <clstatphys/tools/accumulator.hpp>
 #include <clstatphys/physics/normalmode_energy_periodic_fftw.hpp>
+#include <clstatphys/physics/toda_discriminant.hpp>
+#include <clstatphys/physics/toda_action_variables.hpp>
 
 using PhysicalQuantities1d = std::unordered_map<std::string, std::vector<tools::Accumulator> >; 
 using PhysicalQuantities2d = std::unordered_map<std::string, std::vector<std::vector<tools::Accumulator> > >;
@@ -29,7 +31,8 @@ struct PhysicalQuantities{
   std::vector<std::string> quantities_2d_list = {
                                                "NormalModeEnergy",
                                                "TodaConservations",
-                                               "TodaEigenvalues"
+                                               "TodaEigenvalues",
+                                               "TodaActionVariables"
                                                };
 
   PhysicalQuantities1d quantities_1d;
@@ -59,15 +62,16 @@ struct PhysicalQuantities{
   }
 
 
-  void measure(std::vector<double> z, int & measure_step){
+  void measure(std::vector<double> const & z, int & measure_step){
     int observe = (num_particles-1) / 2;
-    double *x = &z[0];
-    double *v = &z[num_particles];
+    const double *x = &z[0];
+    const double *v = &z[num_particles];
     double pt = 0.0;
     double v_total,x_total,sum_spectral,average_spectral,spectral_entropy;
-    std::vector<double> normalmode_energy_temp(num_particles), 
-                        toda_conservations_temp(num_particles),
-                        toda_eigenvalues_temp(num_particles);
+    std::vector<double> normalmode_energy_temp(num_particles,0.0), 
+                        toda_action_variables_temp(num_particles,0.0),
+                        toda_conservations_temp(num_particles,0.0),
+                        toda_eigenvalues_temp(num_particles,0.0);
     v_total = 0.0;
     x_total = 0.0;
     for(int i = 0; i < num_particles; ++i){
@@ -76,7 +80,14 @@ struct PhysicalQuantities{
     } 
     //set normalmode energy
     NormalModeEnergyPeriodicFFTW(z,normalmode_energy_temp);
+
+    //set action variables 
+    int num_iterations = 16;
+    rokko::dlmatrix L = toda_lax_form.L_matrix(z);
+    integrable::TodaDiscriminant discriminant(num_particles, L, "periodic");
+    TodaActionVariables(toda_action_variables_temp, discriminant, num_iterations);
   
+    //calc spectral enetropy
     sum_spectral = 0;
     spectral_entropy= 0;
     average_spectral= 0;
@@ -112,6 +123,7 @@ struct PhysicalQuantities{
       quantities_2d["NormalModeEnergy"][measure_step][i] << normalmode_energy_temp[i];
       quantities_2d["TodaConservations"][measure_step][i] << toda_conservations_temp[i];
       quantities_2d["TodaEigenvalues"][measure_step][i] << toda_eigenvalues_temp[i];
+      quantities_2d["TodaActionVariables"][measure_step][i] << toda_action_variables_temp[i];
     }
     ++measure_step;
   }
@@ -193,11 +205,16 @@ struct PhysicalQuantities{
     domain_2d["NormalModeEnergy"]["wave_vector"] = std::vector<double>(num_particles);
     for(int i = 0 ; i < num_particles ; ++i) domain_2d["NormalModeEnergy"]["wave_vector"][i] = i;
 
-
     // Toda conservatsion
     file_name["TodaConservations"] = settings.result_directory + "result_toda_conservations.dat";
     domain_2d["TodaConservations"]["power"] = std::vector<double>(num_particles);
     for(int i = 0 ; i < num_particles ; ++i) domain_2d["TodaConservations"]["power"][i] = i;
+
+    // Toda action variables
+    file_name["TodaActionVariables"] = settings.result_directory + "result_toda_action_variables.dat";
+    domain_2d["TodaActionVariables"]["number"] = std::vector<double>(num_particles);
+    for(int i = 0 ; i < num_particles ; ++i) domain_2d["TodaActionVariables"]["number"][i] = i;
+
 
     // output 2d data 
     for(const auto& key  : quantities_2d_list){
