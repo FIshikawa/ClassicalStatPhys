@@ -13,7 +13,7 @@ public:
   MetropolisClassicalXY(double J, double T, int num) : num_(num),T_(T) {} 
 
   template <class Rand, class F>
-  void montecalro(std::vector<double>& z, int& counter, F const& f, Rand & mt) const {
+  void montecarlo(std::vector<double>& z, int& counter, F const& f, Rand & mt) const {
     // const double kB = 1.38064852 / pow(10.0,23.0);
     std::uniform_int_distribution<> dist(0,num_-1);
     std::uniform_real_distribution<> Spin_Rand(0,2*M_PI);
