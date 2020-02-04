@@ -21,7 +21,7 @@ void TodaActionVariables(std::vector<double> & action_variables,
   };
 
   for(int i = 0; i < matrix_size - 1; ++i){
-    action_variables[i] = standards::simpson_1d(func, roots[2*i+1], roots[2*i+2], num_iterations);
+    action_variables[i] = 2.0 / M_PI * standards::simpson_1d(func, roots[2*i+1], roots[2*i+2], num_iterations);
   }
 }
 
