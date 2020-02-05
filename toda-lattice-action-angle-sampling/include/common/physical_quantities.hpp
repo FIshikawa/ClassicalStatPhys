@@ -13,26 +13,26 @@ using PhysicalQuantities2d = std::unordered_map<std::string, std::vector<std::ve
 struct PhysicalQuantities{
   int num_particles;
   int N_total_data;
-  double v_init;
-  double x_init;
+  int num_iterations;
+  double total_energy_init, spectral_entropy_init;
+  std::vector<double> conservations_init, eigenvalues_init, action_variables_init;
   std::vector<std::string> quantities_1d_list = {
-                                               "Velocity",
-                                               "Velocity_total",
-                                               "Displacement",
-                                               "Displacement_total",
                                                "Energy_total",
                                                "Kinetic_Energy",
                                                "Potential_Energy",
-                                               "SpectralEntropy",
                                                "EffectiveFractionOfModes",
-                                               "DisplacementACF",
-                                               "VelocityACF"
+                                               "SpectralEntropy",
+                                               "EnergyACF",
+                                               "SpectralEntropyACF",
                                                };
   std::vector<std::string> quantities_2d_list = {
                                                "NormalModeEnergy",
                                                "TodaConservations",
                                                "TodaEigenvalues",
-                                               "TodaActionVariables"
+                                               "TodaActionVariables",
+                                               "TodaConservationsACF",
+                                               "TodaEigenvaluesACF",
+                                               "TodaActionVariablesACF",
                                                };
 
   PhysicalQuantities1d quantities_1d;
@@ -45,6 +45,7 @@ struct PhysicalQuantities{
   PhysicalQuantities(Settings & settings){
     N_total_data = settings.N_total_data;
     num_particles = settings.num_particles;
+    num_iterations = settings.num_iterations;
 
     for(const auto& key : quantities_1d_list){
       quantities_1d[key].resize(N_total_data);
@@ -57,32 +58,26 @@ struct PhysicalQuantities{
         for(int i = 0; i < num_particles ; ++i) quantities_2d[key][step][i].reset();
       }
     }
+    conservations_init = std::vector<double>(num_particles,0.0);
+    eigenvalues_init= std::vector<double>(num_particles,0.0);
+    action_variables_init= std::vector<double>(num_particles,0.0);
+
     toda_lax_form = settings.toda_lax_form();
     hamiltonian = settings.hamiltonian();
   }
 
 
   void measure(std::vector<double> const & z, int & measure_step){
-    int observe = (num_particles-1) / 2;
-    const double *x = &z[0];
-    const double *v = &z[num_particles];
     double pt = 0.0;
-    double v_total,x_total,sum_spectral,average_spectral,spectral_entropy;
+    double v_total,x_total,sum_spectral,average_spectral,spectral_entropy,total_energy;
     std::vector<double> normalmode_energy_temp(num_particles,0.0), 
                         toda_action_variables_temp(num_particles,0.0),
                         toda_conservations_temp(num_particles,0.0),
                         toda_eigenvalues_temp(num_particles,0.0);
-    v_total = 0.0;
-    x_total = 0.0;
-    for(int i = 0; i < num_particles; ++i){
-      v_total += v[i] / num_particles;
-      x_total += x[i] / num_particles;
-    } 
     //set normalmode energy
     NormalModeEnergyPeriodicFFTW(z,normalmode_energy_temp);
 
     //set action variables 
-    int num_iterations = 16;
     rokko::dlmatrix L = toda_lax_form.L_matrix(z);
     integrable::TodaDiscriminant discriminant(num_particles, L, "periodic");
     TodaActionVariables(toda_action_variables_temp, discriminant, num_iterations);
@@ -101,11 +96,9 @@ struct PhysicalQuantities{
     toda_lax_form.conservations_with_eigenvalues(z, toda_conservations_temp, toda_eigenvalues_temp);
   
     //input data 
-    quantities_1d["Velocity"][measure_step] << v[observe];
-    quantities_1d["Velocity_total"][measure_step] << v_total;
-    quantities_1d["Displacement"][measure_step] << x[observe];
-    quantities_1d["Displacement_total"][measure_step] << x_total;
-    quantities_1d["Energy_total"][measure_step] <<  hamiltonian.energy(pt,z) / num_particles;
+    total_energy = hamiltonian.energy(pt,z) / num_particles;
+
+    quantities_1d["Energy_total"][measure_step] << total_energy;
     quantities_1d["Kinetic_Energy"][measure_step] << hamiltonian.kinetic_energy(pt,z) / num_particles;
     quantities_1d["Potential_Energy"][measure_step] << hamiltonian.potential_energy(pt,z) / num_particles;
     quantities_1d["SpectralEntropy"][measure_step] << spectral_entropy;
@@ -113,17 +106,28 @@ struct PhysicalQuantities{
   
   
     if(measure_step == 0){
-      v_init = v[observe] - v_total;
-      x_init = x[observe];
+      total_energy_init = total_energy;
+      spectral_entropy_init = spectral_entropy;
+      for(int i = 0; i < num_particles; ++i){
+        conservations_init[i] = toda_conservations_temp[i];
+        eigenvalues_init[i] = toda_eigenvalues_temp[i];
+        action_variables_init[i] = toda_action_variables_temp[i];
+      }
     }
-    quantities_1d["VelocityACF"][measure_step] << v_init * (v[observe] - v_total);
-    quantities_1d["DisplacementACF"][measure_step] << x_init * x[observe];
+    quantities_1d["EnergyACF"][measure_step] << total_energy_init * total_energy;
+    quantities_1d["SpectralEntropyACF"][measure_step] << spectral_entropy_init * spectral_entropy;
 
     for(int i = 0; i < num_particles; ++i) {
       quantities_2d["NormalModeEnergy"][measure_step][i] << normalmode_energy_temp[i];
       quantities_2d["TodaConservations"][measure_step][i] << toda_conservations_temp[i];
       quantities_2d["TodaEigenvalues"][measure_step][i] << toda_eigenvalues_temp[i];
       quantities_2d["TodaActionVariables"][measure_step][i] << toda_action_variables_temp[i];
+      quantities_2d["TodaConservationsACF"][measure_step][i] 
+                                      << conservations_init[i] * toda_conservations_temp[i];
+      quantities_2d["TodaEigenvaluesACF"][measure_step][i] 
+                                      << eigenvalues_init[i] * toda_eigenvalues_temp[i];
+      quantities_2d["TodaActionVariablesACF"][measure_step][i] 
+                                      << action_variables_init[i] * toda_action_variables_temp[i];
     }
     ++measure_step;
   }
@@ -152,8 +156,7 @@ struct PhysicalQuantities{
     }
     std::unordered_map< std::string, std::vector<double> > domain_time;
     domain_time["time"] = std::vector<double>(N_total_data);
-    tools::TimeMeasure time_measure = settings.time_measure();
-    for(int step = 0; step < N_total_data; ++step) domain_time["time"][step] = time_measure();
+    for(int step = 0; step < N_total_data; ++step) domain_time["time"][step] = step;
 
     dataput.output_result(file_name["normal"], domain_time, results_normal);
 
@@ -178,22 +181,16 @@ struct PhysicalQuantities{
       }
     }
 
-    values_name["TodaConservations"] 
-      = std::vector<std::string>{"TodaConservations","error_TodaConservations",
-                                 "TodaConservationsVariance","error_TodaConservationsVariance"};
-    results_2d["TodaConservationsVariance"] 
-        = std::vector< std::vector<double> >(N_total_data, std::vector<double>(num_particles,0.0));
-    results_2d["error_TodaConservationsVariance"] 
-        = std::vector< std::vector<double> >(N_total_data, std::vector<double>(num_particles,0.0));
-
-    for(int step = 0; step < N_total_data; ++step){
-      for(int site = 0; site < num_particles; ++site){
-        results_2d["TodaConservationsVariance"][step][site] 
-            = quantities_2d["TodaConservations"][step][site].variance();
-        results_2d["error_TodaConservationsVariance"][step][site] 
-          = quantities_2d["TodaConservations"][step][site].variance_error();
-      }
+    for(const std::string & key : {"TodaConservations","TodaEigenvalues","TodaActionVariables"}){
+      values_name[key] 
+        = std::vector<std::string>{key,"error_" + key,
+                                   key + "ACF","error_" + key + "ACF"};
+      results_2d[key + "ACF"] 
+          = std::vector< std::vector<double> >(N_total_data, std::vector<double>(num_particles,0.0));
+      results_2d["error_" + key + "ACF"] 
+          = std::vector< std::vector<double> >(N_total_data, std::vector<double>(num_particles,0.0));
     }
+
 
     // Eigenvalues
     file_name["TodaEigenvalues"] = settings.result_directory + "result_toda_eigenvalues.dat";

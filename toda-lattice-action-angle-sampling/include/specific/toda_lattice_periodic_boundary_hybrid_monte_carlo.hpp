@@ -2,37 +2,40 @@
 #define SETTINGS_HPP
 
 #include <boost/lexical_cast.hpp>
-#include <clstatphys/ensemble/hybrid_monte_carlo.hpp>
 #include <clstatphys/physics/todalattice.hpp>
+#include <clstatphys/ensemble/hybrid_monte_carlo.hpp>
+#include <clstatphys/ensemble/modeoccupancy_ensemble_periodic_boundary_fftw.hpp>
 #include <common/settings_common.hpp>
 
-using EnsemblerOrigin = ensemble::HybridMonteCarlo; 
+using Ensembler = ensemble::ModeOccupancyEnsemblePeriodicBoundaryFFTW; 
 using Hamiltonian = hamiltonian::TodaLattice;
+using MonteCarloSamplerOrigin = ensemble::HybridMonteCarlo; 
 
-class Ensembler : public EnsemblerOrigin{
+class MonteCarloSampler: public MonteCarloSamplerOrigin{
 public:
   template<class Hamiltonian>
-  Ensembler(
+  MonteCarloSampler(
             int num_particles, double temperture, double dt_relax, 
-            double relax_time, int total_accept, int initial_relax_time,
-            Hamiltonian hamiltonian)
-    : EnsemblerOrigin(num_particles, temperture, dt_relax, relax_time, total_accept),
-      initial_relax_time_(initial_relax_time) {hamiltonian_ = hamiltonian;}
+            double relax_time, int total_accept, Hamiltonian hamiltonian)
+    : MonteCarloSamplerOrigin(num_particles, temperture, dt_relax, relax_time, total_accept)
+  {hamiltonian_ = hamiltonian;}
   
   template<class Rand>
-  void set_initial_state(std::vector<double> & z, Rand & mt){
+  void montecarlo(std::vector<double> & z, Rand & mt){
     int counter = 0;
-    for(int step = 0; step < initial_relax_time_; ++step) EnsemblerOrigin::montecarlo(z, counter, hamiltonian_, mt);
+    MonteCarloSamplerOrigin::montecarlo(z, counter, hamiltonian_, mt);
   }
 
 private:
-  int initial_relax_time_;
   Hamiltonian hamiltonian_;
-}; //end Ensembler definition
+}; //end MonteCarloSampler definition
 
 struct Settings : public SettingsCommon{
+  int N_normalmode = 5; //numer of time step
+  int k_initial = 0; //start wave vector filled by initialization 
+  double E_initial = 1.0; // initial energy
+
   int total_accept = 10;
-  double initial_relax_time = 10;
   double relax_time = 10;
   double dt_relax = 0.1;
   double temperture = 1.0;
@@ -48,14 +51,21 @@ struct Settings : public SettingsCommon{
   Settings() = default;
 
   inline void set(int argc, char **argv, int & input_counter){
+    if (argc > input_counter) E_initial =        boost::lexical_cast<double>(argv[input_counter]);++input_counter;
+    if (argc > input_counter) k_initial =        boost::lexical_cast<int>(argv[input_counter]);++input_counter;
+    if (argc > input_counter) N_normalmode =     boost::lexical_cast<int>(argv[input_counter]);++input_counter;
+    if (Ns < N_normalmode + k_initial){
+      std::cerr << "k_initial + N_noramalmode should be lower than Ns" << std::endl;
+      std::exit(1);
+    } 
+
     if (argc > input_counter) total_accept       = boost::lexical_cast<int>(argv[input_counter]);++input_counter;
-    if (argc > input_counter) initial_relax_time = boost::lexical_cast<double>(argv[input_counter]);++input_counter;
     if (argc > input_counter) relax_time         = boost::lexical_cast<double>(argv[input_counter]);++input_counter;
     if (argc > input_counter) dt_relax           = boost::lexical_cast<double>(argv[input_counter]);++input_counter;
     if (argc > input_counter) temperture         = boost::lexical_cast<double>(argv[input_counter]);++input_counter;
 
-    if (argc > input_counter) J                  = boost::lexical_cast<double>(argv[input_counter]);++input_counter;
-    if (argc > input_counter) alpha              = boost::lexical_cast<double>(argv[input_counter]);++input_counter;
+    if (argc > input_counter) J =     boost::lexical_cast<double>(argv[input_counter]);++input_counter;
+    if (argc > input_counter) alpha = boost::lexical_cast<double>(argv[input_counter]);++input_counter;
   }
 
   template <class Dataput>
@@ -64,14 +74,21 @@ struct Settings : public SettingsCommon{
 
     dataput <<  "<<System Depend Settings>> " << std::endl
             <<  "  " << Hamiltonian::name() << std::endl
-            <<  "  " << EnsemblerOrigin::name() << std::endl
-            <<  "  " << Lattice::name() << std::endl
+            <<  "  " << Ensembler::name() << std::endl
+            <<  "  " << MonteCarloSampler::name() << std::endl
 
+            // declare normalmode ensemble 
+            << "  Energy initial : E_initial =" << E_initial << std::endl
+            << "  Number of non-zero energy normal modes : N_normalmode =" << N_normalmode << std::endl
+            << "  Start wave vector filled by initialization : k_initial =" << k_initial << std::endl
+
+            // declare hybrid monte carlo
             << "  Number of step for fianally accept : total_accept = " << total_accept << std::endl
             << "  Relaxtion time for update : relax_time = " << relax_time << std::endl
             << "  Interbal of time development : dt_relax  = " << dt_relax << std::endl
             << "  Temperture : temperture = " << temperture << std::endl
 
+            // declare hamiltonian 
             << "  Coupling constant : J = " << J << std::endl
             << "  Coupling constant : alpha = " << alpha << std::endl;
   }
@@ -95,21 +112,28 @@ struct Settings : public SettingsCommon{
     return hamiltonian_t;
   }
 
+  MonteCarloSampler monte_carlo_sampler(){
+    MonteCarloSampler monte_carlo_sampler_t(
+                                            num_particles,
+                                            temperture,
+                                            dt_relax,
+                                            relax_time,
+                                            total_accept,
+                                            hamiltonian()
+                                            );
+    return monte_carlo_sampler_t;
+  }
+
   Ensembler ensembler(){
     Ensembler ensembler_t(
                           num_particles,
-                          temperture,
-                          dt_relax,
-                          relax_time,
-                          total_accept,
-                          initial_relax_time,
-                          hamiltonian()
+                          k_initial,
+                          N_normalmode,
+                          E_initial
                           );
     return ensembler_t;
   }
 
-}; //end Settings definition
-
-
+};
 
 #endif
