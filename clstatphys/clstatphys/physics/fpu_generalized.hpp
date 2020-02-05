@@ -14,6 +14,7 @@ public:
   FPUGeneralized(int num_particles, double J, double alpha, double beta, double gamma, double delta, 
       std::vector<std::vector<int > > table, int N_adj) :  
     n_(num_particles), J_(J), table_(table),Nd_(N_adj),alpha_(alpha),beta_(beta),gamma_(gamma),delta_(delta){}
+  FPUGeneralized() = default;
 
   double energy(double t, std::vector<double> const& z) const {
     return potential_energy(t, z) + kinetic_energy(t, z);
