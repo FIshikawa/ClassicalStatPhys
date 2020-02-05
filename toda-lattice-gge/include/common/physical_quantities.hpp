@@ -12,6 +12,7 @@ using PhysicalQuantities2d = std::unordered_map<std::string, std::vector<std::ve
 
 struct PhysicalQuantities{
   int num_particles;
+  int num_iterations;
   int N_total_data;
   double v_init;
   double x_init;
@@ -45,6 +46,7 @@ struct PhysicalQuantities{
   PhysicalQuantities(Settings & settings){
     N_total_data = settings.N_total_data;
     num_particles = settings.num_particles;
+    num_iterations = settings.num_iterations;
 
     for(const auto& key : quantities_1d_list){
       quantities_1d[key].resize(N_total_data);
@@ -82,7 +84,6 @@ struct PhysicalQuantities{
     NormalModeEnergyPeriodicFFTW(z,normalmode_energy_temp);
 
     //set action variables 
-    int num_iterations = 16;
     rokko::dlmatrix L = toda_lax_form.L_matrix(z);
     integrable::TodaDiscriminant discriminant(num_particles, L, "periodic");
     TodaActionVariables(toda_action_variables_temp, discriminant, num_iterations);

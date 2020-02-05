@@ -5,9 +5,9 @@
 #include <common/finalize.hpp>
 
 TEST(FinalizeTest, MethodsTest){
-  char *argv[32] = {"./test", "10", "10","100","10.0","100","100","linear",
+  char *argv[32] = {"./test", "10", "10","100","10.0","100","100","linear","10",
                     "1.0","1","4","2.0","2.0"};
-  int argc = 14;
+  int argc = 15;
   int input_counter = 0;  
   Settings settings(argc, argv, input_counter);
   settings.declare(std::cout);

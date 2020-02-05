@@ -12,6 +12,7 @@ using Lattice = lattice::Chain;
 using Integrator = integrator::Yoshida4th;
 
 struct SettingsCommon{
+  int num_iterations = 32; 
   int Ns = 10; // lenght of chain
   int N_loop = 1; //loop number
   int Ns_observe = Ns; //observed particle 
@@ -61,6 +62,7 @@ struct SettingsCommon{
     if (argc > input_counter) N_loop =           boost::lexical_cast<int>(argv[input_counter]);++input_counter;
     if (argc > input_counter) N_time_measure =   boost::lexical_cast<int>(argv[input_counter]);++input_counter;
     if (argc > input_counter) plot_scale =       boost::lexical_cast<std::string>(argv[input_counter]);++input_counter;
+    if (argc > input_counter) num_iterations =   boost::lexical_cast<int>(argv[input_counter]);++input_counter;
 
     num_particles = Lattice::set_num_particles(Ns); //nummer of particles
     Lattice lattice_t(Ns);
@@ -72,7 +74,6 @@ struct SettingsCommon{
 
     time_measure_ = tools::TimeMeasure(t, dt, N_time_measure, plot_scale);
     N_total_data = time_measure_.number_of_total_data();
-
   }
 
   template <class Dataput>
@@ -94,6 +95,7 @@ struct SettingsCommon{
             << "  Number of loop : N_loop =" << N_loop << std::endl
             << "  Each thread loop : N_each = " << N_each << std::endl 
             << "  Plot scale : plot_scale = " << plot_scale<< std::endl
+            << "  Number of iteration for action variables : num_iterations = " << num_iterations << std::endl
             << "  Result directory : " << result_directory << std::endl;
   }
 
