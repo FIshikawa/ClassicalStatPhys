@@ -4,6 +4,7 @@
 #include <cmath>
 #include <string>
 #include <random>
+#include <clstatphys/physics/toda_lax_form.hpp>
 #include <clstatphys/physics/toda_discriminant.hpp>
 #include <clstatphys/physics/toda_action_variables.hpp>
 
