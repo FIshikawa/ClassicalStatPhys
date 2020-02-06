@@ -4,10 +4,25 @@
 #include <boost/lexical_cast.hpp>
 #include <clstatphys/ensemble/modeoccupancy_ensemble_periodic_boundary_fftw.hpp>
 #include <clstatphys/physics/todalattice.hpp>
+#include <clstatphys/ensemble/action_metropolis.hpp>
 #include <common/settings_common.hpp>
 
+using MonteCarloSamplerOrigin = ensemble::MetropolisActionToda;
 using Ensembler = ensemble::ModeOccupancyEnsemblePeriodicBoundaryFFTW; 
 using Hamiltonian = hamiltonian::TodaLattice;
+
+class MonteCarloSampler: public MonteCarloSamplerOrigin{
+public:
+  MonteCarloSampler(int num, int num_iteration, std::vector<double> betas, 
+      double J, double alpha, double dp, double dx) 
+    : MonteCarloSamplerOrigin(num,num_iteration,betas,J,alpha,dp,dx) {} 
+  
+  template<class Rand>
+  void montecarlo(std::vector<double> & z, Rand & mt){
+    int counter = 0;
+    MonteCarloSamplerOrigin::montecarlo(z, counter, mt);
+  }
+}; //end MonteCarloSampler definition
 
 struct Settings : public SettingsCommon{
   int N_normalmode = 5; //numer of time step
@@ -15,6 +30,8 @@ struct Settings : public SettingsCommon{
   double E_initial = 1.0; // initial energy
   double J = 1.0; //interaction constant;
   double alpha = 1.0; //interaction constant;
+  double dx = 1.0; //interaction constant;
+  double dp = 1.0; //interaction constant;
 
   Settings(int argc, char **argv, int & input_counter) 
     : SettingsCommon(argc, argv, input_counter) 
@@ -31,6 +48,10 @@ struct Settings : public SettingsCommon{
       std::cerr << "k_initial + N_noramalmode should be lower than Ns" << std::endl;
       std::exit(1);
     } 
+
+    if (argc > input_counter) dp =    boost::lexical_cast<double>(argv[input_counter]);++input_counter;
+    if (argc > input_counter) dx =    boost::lexical_cast<double>(argv[input_counter]);++input_counter;
+
     if (argc > input_counter) J =     boost::lexical_cast<double>(argv[input_counter]);++input_counter;
     if (argc > input_counter) alpha = boost::lexical_cast<double>(argv[input_counter]);++input_counter;
   }
@@ -47,6 +68,9 @@ struct Settings : public SettingsCommon{
             << "  Energy initial : E_initial =" << E_initial << std::endl
             << "  Number of non-zero energy normal modes : N_normalmode =" << N_normalmode << std::endl
             << "  Start wave vector filled by initialization : k_initial =" << k_initial << std::endl
+ 
+            << "  Difference for propose : dx = " << dx << std::endl
+            << "  Difference for propose : dp = " << dp << std::endl
  
             << "  Coupling constant : J = " << J << std::endl
             << "  Coupling constant : alpha = " << alpha << std::endl;
@@ -82,7 +106,16 @@ struct Settings : public SettingsCommon{
   }
   
   MonteCarloSampler monte_carlo_sampler(){
-    MonteCarloSampler monte_carlo_sampler_t();
+    std::vector<double> betas(num_particles-1,1.0);
+    MonteCarloSampler monte_carlo_sampler_t(
+                                         num_particles, 
+                                         num_iterations, 
+                                         betas,
+                                         J,
+                                         alpha,
+                                         dp,
+                                         dx
+                                         );
     return monte_carlo_sampler_t;
   }
 

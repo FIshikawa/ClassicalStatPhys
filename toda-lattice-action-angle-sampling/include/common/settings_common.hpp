@@ -26,7 +26,6 @@ struct SettingsCommon{
   int mpi_error = 1;
   int mpi_error_end = 1;
   char processor_name[MPI_MAX_PROCESSOR_NAME];
-  std::string plot_scale{"linear"};
   std::string condition_dat{"condi.dat"};
   std::string result_directory{"./"};
 
@@ -52,7 +51,6 @@ struct SettingsCommon{
     }
     if (argc > input_counter) N_mc =             boost::lexical_cast<int>(argv[input_counter]);++input_counter;
     if (argc > input_counter) N_loop =           boost::lexical_cast<int>(argv[input_counter]);++input_counter;
-    if (argc > input_counter) plot_scale =       boost::lexical_cast<std::string>(argv[input_counter]);++input_counter;
     if (argc > input_counter) num_iterations =   boost::lexical_cast<int>(argv[input_counter]);++input_counter;
 
     num_particles = Lattice::set_num_particles(Ns); //nummer of particles
@@ -79,7 +77,6 @@ struct SettingsCommon{
             << "  Number of MPI parallelization : N_mpi_parallel =" << N_mpi_parallel << std::endl
             << "  Number of loop : N_loop =" << N_loop << std::endl
             << "  Each thread loop : N_each = " << N_each << std::endl 
-            << "  Plot scale : plot_scale = " << plot_scale<< std::endl
             << "  Number of iteration for action variables : num_iterations = " << num_iterations << std::endl
             << "  Result directory : " << result_directory << std::endl;
   }
