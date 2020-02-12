@@ -15,13 +15,19 @@ class MonteCarloSampler: public MonteCarloSamplerOrigin{
 public:
   MonteCarloSampler(int num, int num_iteration, std::vector<double> betas, 
       double J, double alpha, double dp, double dx) 
-    : MonteCarloSamplerOrigin(num,num_iteration,betas,J,alpha,dp,dx) {} 
+    : MonteCarloSamplerOrigin(num,num_iteration,betas,J,alpha,dp,dx), num_(num){} 
   
   template<class Rand>
   void montecarlo(std::vector<double> & z, Rand & mt){
     int counter = 0;
-    MonteCarloSamplerOrigin::montecarlo(z, counter, mt);
+    int counter_t = 0;
+    while(counter_t < num_){ 
+      MonteCarloSamplerOrigin::montecarlo(z, counter, mt);
+      counter_t += 1;
+    }
   }
+private:
+  int num_;
 }; //end MonteCarloSampler definition
 
 struct Settings : public SettingsCommon{
@@ -30,8 +36,8 @@ struct Settings : public SettingsCommon{
   double E_initial = 1.0; // initial energy
   double J = 1.0; //interaction constant;
   double alpha = 1.0; //interaction constant;
-  double dx = 1.0; //interaction constant;
-  double dp = 1.0; //interaction constant;
+  double dx = 0.01; //interaction constant;
+  double dp = 0.01; //interaction constant;
 
   Settings(int argc, char **argv, int & input_counter) 
     : SettingsCommon(argc, argv, input_counter) 

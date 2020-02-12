@@ -13,13 +13,13 @@ struct SettingsCommon{
   int Ns = 10; // lenght of chain
   int N_loop = 1; //loop number
   int Ns_observe = Ns; //observed particle 
-  int N_mc = 1000; //numer of time step
+  int N_mc = 10; //numer of time step
   int order = 0;
   int num_particles = 10; //nummer of particles
   int N_mpi_parallel = 2; // number of mpi parallel
   int N_each = 10;// number of each parallel
   int N_adj = 2;// number of adjacent spins
-  int N_total_data = 100; // number of data
+  int N_total_data = 10; // number of data
   int process_id = 1;
   int name_length;
   int num_threads;

@@ -4,7 +4,7 @@
 #include <common/physical_quantities.hpp>
 
 TEST(SamplingProcessTest, MethodsTest){
-  char *argv[32] = {"./test", "10", "10", "10", "100","linear","10",
+  char *argv[32] = {"./test", "10", "10", "10", "100","10",
                     "1.0", "1", "4",
                     "10", "10", "0.1", "1.0",
                     "2.0", "2.0"};

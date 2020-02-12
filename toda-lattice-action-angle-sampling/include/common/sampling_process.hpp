@@ -30,14 +30,15 @@ void SamplingProcess(Settings & settings, PhysicalQuanties & physical_quantities
 
     int measure_step = 0;
     for(int step = 0; step < N_mc; ++step){  
-      //set total values 
-      physical_quantities.measure(z, measure_step);
       //time develp
       monte_carlo_sampler.montecarlo(z, mt);
+      //set total values 
+      physical_quantities.measure(z, measure_step);
     }//end time step
     if(measure_step != N_total_data){
-      std::cerr << "final measure_step : " << measure_step << ", N_total_data : " << N_total_data <<", not same " << std::endl;
-      std::exit(112);
+      std::cerr << "final measure_step : " << measure_step 
+        << ", N_total_data : " << N_total_data <<", not same " << std::endl;
+      std::exit(1);
     }
   }//end loop
 };

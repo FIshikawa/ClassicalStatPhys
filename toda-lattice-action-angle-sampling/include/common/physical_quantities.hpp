@@ -2,6 +2,7 @@
 #define PHYISCAL_QUANTITIES_HPP
 
 #include <unordered_map>
+#include <algorithm>
 #include <clstatphys/tools/accumulator.hpp>
 #include <clstatphys/physics/normalmode_energy_periodic_fftw.hpp>
 #include <clstatphys/physics/toda_discriminant.hpp>
@@ -22,7 +23,7 @@ struct PhysicalQuantities{
                                                "Potential_Energy",
                                                "EffectiveFractionOfModes",
                                                "SpectralEntropy",
-                                               "EnergyACF",
+                                               "Energy_totalACF",
                                                "SpectralEntropyACF",
                                                };
   std::vector<std::string> quantities_2d_list = {
@@ -114,7 +115,7 @@ struct PhysicalQuantities{
         action_variables_init[i] = toda_action_variables_temp[i];
       }
     }
-    quantities_1d["EnergyACF"][measure_step] << total_energy_init * total_energy;
+    quantities_1d["Energy_totalACF"][measure_step] << total_energy_init * total_energy;
     quantities_1d["SpectralEntropyACF"][measure_step] << spectral_entropy_init * spectral_entropy;
 
     for(int i = 0; i < num_particles; ++i) {
@@ -142,7 +143,6 @@ struct PhysicalQuantities{
     // normal results define 
     file_name["normal"] = settings.result_directory + "result.dat";
     std::unordered_map<std::string, std::vector<double> > results_normal;
-    
 
     for(const auto& key  : quantities_1d_list){
       results_normal[key].resize(N_total_data);
@@ -158,7 +158,19 @@ struct PhysicalQuantities{
     domain_time["time"] = std::vector<double>(N_total_data);
     for(int step = 0; step < N_total_data; ++step) domain_time["time"][step] = step;
 
-    dataput.output_result(file_name["normal"], domain_time, results_normal);
+    // set ACF 
+    for(const auto& key  : quantities_1d_list){
+      if(std::find(quantities_1d_list.begin(), quantities_1d_list.end(), key + "ACF") != quantities_1d_list.end()){
+        for(int step = 0; step < N_total_data; ++step){
+          results_normal[key+"ACF"][step] -= results_normal[key][0] * results_normal[key][step]; 
+          results_normal[key+"ACF"][step] /= std::sqrt(quantities_1d[key][0].variance())
+                                                * std::sqrt(quantities_1d[key][step].variance());
+          results_normal["error_"+key+"ACF"][step] = 0.0; 
+        }
+      }
+    }
+
+  dataput.output_result(file_name["normal"], domain_time, results_normal);
 
 
     // 2dim resutls set 
@@ -185,10 +197,15 @@ struct PhysicalQuantities{
       values_name[key] 
         = std::vector<std::string>{key,"error_" + key,
                                    key + "ACF","error_" + key + "ACF"};
-      results_2d[key + "ACF"] 
-          = std::vector< std::vector<double> >(N_total_data, std::vector<double>(num_particles,0.0));
-      results_2d["error_" + key + "ACF"] 
-          = std::vector< std::vector<double> >(N_total_data, std::vector<double>(num_particles,0.0));
+      // set ACF 
+      for(int step = 0; step < N_total_data; ++step){
+        for(int site = 0; site < num_particles; ++site){
+          results_2d[key+"ACF"][step][site] -= results_2d[key][0][site] * results_2d[key][step][site]; 
+          results_2d[key+"ACF"][step][site] /= std::sqrt(quantities_2d[key][0][site].variance())
+                                                * std::sqrt(quantities_2d[key][step][site].variance());
+          results_2d["error_"+key+"ACF"][step][site] = 0.0;
+        }
+      }
     }
 
 
