@@ -14,8 +14,8 @@ struct PhysicalQuantities{
   int num_particles;
   int num_iterations;
   int N_total_data;
-  double v_init;
-  double x_init;
+  double v_init, x_init;
+  std::vector<double> conservations_init, eigenvalues_init, action_variables_init;
   std::vector<std::string> quantities_1d_list = {
                                                "Velocity",
                                                "Velocity_total",
@@ -33,7 +33,10 @@ struct PhysicalQuantities{
                                                "NormalModeEnergy",
                                                "TodaConservations",
                                                "TodaEigenvalues",
-                                               "TodaActionVariables"
+                                               "TodaActionVariables",
+                                               "TodaConservationsACF",
+                                               "TodaEigenvaluesACF",
+                                               "TodaActionVariablesACF",
                                                };
 
   PhysicalQuantities1d quantities_1d;
@@ -59,6 +62,12 @@ struct PhysicalQuantities{
         for(int i = 0; i < num_particles ; ++i) quantities_2d[key][step][i].reset();
       }
     }
+
+    // init initial vector for ACF
+    conservations_init = std::vector<double>(num_particles,0.0);
+    eigenvalues_init= std::vector<double>(num_particles,0.0);
+    action_variables_init= std::vector<double>(num_particles,0.0);
+
     toda_lax_form = settings.toda_lax_form();
     hamiltonian = settings.hamiltonian();
   }
@@ -116,6 +125,11 @@ struct PhysicalQuantities{
     if(measure_step == 0){
       v_init = v[observe] - v_total;
       x_init = x[observe];
+      for(int i = 0; i < num_particles; ++i){
+        conservations_init[i] = toda_conservations_temp[i];
+        eigenvalues_init[i] = toda_eigenvalues_temp[i];
+        action_variables_init[i] = toda_action_variables_temp[i];
+      }
     }
     quantities_1d["VelocityACF"][measure_step] << v_init * (v[observe] - v_total);
     quantities_1d["DisplacementACF"][measure_step] << x_init * x[observe];
@@ -125,6 +139,12 @@ struct PhysicalQuantities{
       quantities_2d["TodaConservations"][measure_step][i] << toda_conservations_temp[i];
       quantities_2d["TodaEigenvalues"][measure_step][i] << toda_eigenvalues_temp[i];
       quantities_2d["TodaActionVariables"][measure_step][i] << toda_action_variables_temp[i];
+      quantities_2d["TodaConservationsACF"][measure_step][i] 
+                                      << conservations_init[i] * toda_conservations_temp[i];
+      quantities_2d["TodaEigenvaluesACF"][measure_step][i] 
+                                      << eigenvalues_init[i] * toda_eigenvalues_temp[i];
+      quantities_2d["TodaActionVariablesACF"][measure_step][i] 
+                                      << action_variables_init[i] * toda_action_variables_temp[i];
     }
     ++measure_step;
   }
@@ -156,6 +176,18 @@ struct PhysicalQuantities{
     tools::TimeMeasure time_measure = settings.time_measure();
     for(int step = 0; step < N_total_data; ++step) domain_time["time"][step] = time_measure();
 
+    // set ACF 
+    for(const auto& key  : quantities_1d_list){
+      if(std::find(quantities_1d_list.begin(), quantities_1d_list.end(), key + "ACF") != quantities_1d_list.end()){
+        for(int step = 0; step < N_total_data; ++step){
+          results_normal[key+"ACF"][step] -= results_normal[key][0] * results_normal[key][step]; 
+          results_normal[key+"ACF"][step] /= std::sqrt(quantities_1d[key][0].variance())
+                                                * std::sqrt(quantities_1d[key][step].variance());
+          results_normal["error_"+key+"ACF"][step] = 0.0; 
+        }
+      }
+    }
+
     dataput.output_result(file_name["normal"], domain_time, results_normal);
 
 
@@ -179,6 +211,23 @@ struct PhysicalQuantities{
       }
     }
 
+    // set ACF variables
+    for(const std::string & key : {"TodaConservations","TodaEigenvalues","TodaActionVariables"}){
+      values_name[key] 
+        = std::vector<std::string>{key,"error_" + key,
+                                   key + "ACF","error_" + key + "ACF"};
+      // set ACF 
+      for(int step = 0; step < N_total_data; ++step){
+        for(int site = 0; site < num_particles; ++site){
+          results_2d[key+"ACF"][step][site] -= results_2d[key][0][site] * results_2d[key][step][site]; 
+          results_2d[key+"ACF"][step][site] /= std::sqrt(quantities_2d[key][0][site].variance())
+                                                * std::sqrt(quantities_2d[key][step][site].variance());
+          results_2d["error_"+key+"ACF"][step][site] = 0.0;
+        }
+      }
+    }
+
+    // set variance variabels 
     values_name["TodaConservations"] 
       = std::vector<std::string>{"TodaConservations","error_TodaConservations",
                                  "TodaConservationsVariance","error_TodaConservationsVariance"};

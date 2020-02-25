@@ -59,6 +59,8 @@ struct PhysicalQuantities{
         for(int i = 0; i < num_particles ; ++i) quantities_2d[key][step][i].reset();
       }
     }
+    
+    // init initial vector for ACF
     conservations_init = std::vector<double>(num_particles,0.0);
     eigenvalues_init= std::vector<double>(num_particles,0.0);
     action_variables_init= std::vector<double>(num_particles,0.0);
