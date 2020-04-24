@@ -6,15 +6,20 @@
 #include <clstatphys/physics/normalmode_energy_periodic_fftw.hpp>
 #include <clstatphys/physics/toda_discriminant.hpp>
 #include <clstatphys/physics/toda_action_variables.hpp>
+#include <clstatphys/physics/toda_action_variables_gk.hpp>
 
 using PhysicalQuantities1d = std::unordered_map<std::string, std::vector<tools::Accumulator> >; 
-using PhysicalQuantities2d = std::unordered_map<std::string, std::vector<std::vector<tools::Accumulator> > >;
+using PhysicalQuantities2d = std::unordered_map<std::string, 
+                                                std::vector<std::vector<tools::Accumulator> > >;
 
 struct PhysicalQuantities{
   int num_particles;
   int num_iterations;
+  int max_depth;
   int N_total_data;
   double v_init, x_init;
+  double relative_error;
+  bool gauss_kronrod;
   std::vector<double> conservations_init, eigenvalues_init, action_variables_init;
   std::vector<std::string> quantities_1d_list = {
                                                "Velocity",
@@ -50,6 +55,9 @@ struct PhysicalQuantities{
     N_total_data = settings.N_total_data;
     num_particles = settings.num_particles;
     num_iterations = settings.num_iterations;
+    max_depth = settings.max_depth;
+    relative_error = settings.relative_error;
+    gauss_kronrod = settings.gauss_kronrod;
 
     for(const auto& key : quantities_1d_list){
       quantities_1d[key].resize(N_total_data);
@@ -95,7 +103,10 @@ struct PhysicalQuantities{
     //set action variables 
     rokko::dlmatrix L = toda_lax_form.L_matrix(z);
     integrable::TodaDiscriminant discriminant(num_particles, L, "periodic");
-    TodaActionVariables(toda_action_variables_temp, discriminant, num_iterations);
+    if(gauss_kronrod)
+      TodaActionVariablesGK(toda_action_variables_temp, discriminant, max_depth, relative_error);
+    else
+      TodaActionVariables(toda_action_variables_temp, discriminant, num_iterations);
   
     //calc spectral enetropy
     sum_spectral = 0;
@@ -178,7 +189,8 @@ struct PhysicalQuantities{
 
     // set ACF 
     for(const auto& key  : quantities_1d_list){
-      if(std::find(quantities_1d_list.begin(), quantities_1d_list.end(), key + "ACF") != quantities_1d_list.end()){
+      if(std::find(quantities_1d_list.begin(), quantities_1d_list.end(), key + "ACF") 
+          != quantities_1d_list.end()){
         for(int step = 0; step < N_total_data; ++step){
           results_normal[key+"ACF"][step] -= results_normal[key][0] * results_normal[key][step]; 
           results_normal[key+"ACF"][step] /= std::sqrt(quantities_1d[key][0].variance())

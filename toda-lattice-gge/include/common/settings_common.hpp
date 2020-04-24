@@ -13,6 +13,7 @@ using Integrator = integrator::Yoshida4th;
 
 struct SettingsCommon{
   int num_iterations = 32; 
+  int max_depth = 5;
   int Ns = 10; // lenght of chain
   int N_loop = 1; //loop number
   int Ns_observe = Ns; //observed particle 
@@ -30,8 +31,10 @@ struct SettingsCommon{
   int mpi_error = 1;
   int mpi_error_end = 1;
   char processor_name[MPI_MAX_PROCESSOR_NAME];
+  double relative_error = 1e-5;
   double dt = 0.01;//time step length
   double t = 10; // Whole time
+  bool gauss_kronrod;
   std::string plot_scale{"linear"};
   std::string condition_dat{"condi.dat"};
   std::string result_directory{"./"};
@@ -50,19 +53,35 @@ struct SettingsCommon{
   SettingsCommon() = default;
 
   inline void set(int argc, char **argv, int & input_counter){
-    if (argc > input_counter) result_directory = boost::lexical_cast<std::string>(argv[input_counter]); ++input_counter;
-    if (argc > input_counter) Ns =               boost::lexical_cast<int>(argv[input_counter]);++input_counter;
-    if (argc > input_counter) Ns_observe =       boost::lexical_cast<int>(argv[input_counter]);++input_counter;
+    if (argc > input_counter) result_directory = boost::lexical_cast<std::string>(argv[input_counter]); 
+    ++input_counter;
+    if (argc > input_counter) Ns =               boost::lexical_cast<int>(argv[input_counter]);
+    ++input_counter;
+    if (argc > input_counter) Ns_observe =       boost::lexical_cast<int>(argv[input_counter]);
+    ++input_counter;
     if (Ns < Ns_observe){
       std::cerr << "Ns_observe should be lower than Ns" << std::endl;
       std::exit(1);
     }
-    if (argc > input_counter) N_time =           boost::lexical_cast<int>(argv[input_counter]);++input_counter;
-    if (argc > input_counter) t =                boost::lexical_cast<double>(argv[input_counter]);++input_counter;
-    if (argc > input_counter) N_loop =           boost::lexical_cast<int>(argv[input_counter]);++input_counter;
-    if (argc > input_counter) N_time_measure =   boost::lexical_cast<int>(argv[input_counter]);++input_counter;
-    if (argc > input_counter) plot_scale =       boost::lexical_cast<std::string>(argv[input_counter]);++input_counter;
-    if (argc > input_counter) num_iterations =   boost::lexical_cast<int>(argv[input_counter]);++input_counter;
+    if (argc > input_counter) N_time =           boost::lexical_cast<int>(argv[input_counter]);
+    ++input_counter;
+    if (argc > input_counter) t =                boost::lexical_cast<double>(argv[input_counter]);
+    ++input_counter;
+    if (argc > input_counter) N_loop =           boost::lexical_cast<int>(argv[input_counter]);
+    ++input_counter;
+    if (argc > input_counter) N_time_measure =   boost::lexical_cast<int>(argv[input_counter]);
+    ++input_counter;
+    if (argc > input_counter) plot_scale =       boost::lexical_cast<std::string>(argv[input_counter]);
+    ++input_counter;
+    if (argc > input_counter) num_iterations =   boost::lexical_cast<int>(argv[input_counter]);
+    ++input_counter;
+    if (argc > input_counter) max_depth      =   boost::lexical_cast<int>(argv[input_counter]);
+    ++input_counter;
+    if (argc > input_counter) relative_error =   boost::lexical_cast<double>(argv[input_counter]);
+    ++input_counter;
+    std::string gauss_kronrod_t;
+    if (argc > input_counter) gauss_kronrod_t = boost::lexical_cast<std::string>(argv[input_counter]);
+    ++input_counter;
 
     num_particles = Lattice::set_num_particles(Ns); //nummer of particles
     Lattice lattice_t(Ns);
@@ -74,6 +93,11 @@ struct SettingsCommon{
 
     time_measure_ = tools::TimeMeasure(t, dt, N_time_measure, plot_scale);
     N_total_data = time_measure_.number_of_total_data();
+    
+    if(gauss_kronrod_t == "True" || gauss_kronrod_t == "true")
+      gauss_kronrod = true;
+    else
+      gauss_kronrod = false;
   }
 
   template <class Dataput>
@@ -95,7 +119,14 @@ struct SettingsCommon{
             << "  Number of loop : N_loop =" << N_loop << std::endl
             << "  Each thread loop : N_each = " << N_each << std::endl 
             << "  Plot scale : plot_scale = " << plot_scale<< std::endl
-            << "  Number of iteration for action variables : num_iterations = " << num_iterations << std::endl
+            << "  Number of iteration for action variables : num_iterations = " 
+                                                     << num_iterations << std::endl
+            << "  Max depth of Gauss Kronrod quadrature formula : max_depth = "
+                                                     << max_depth << std::endl
+            << "  Relative error of Gauss Kronrod quadrature formula : relative_error = "
+                                                     << relative_error << std::endl
+            << "  Flag of Gauss Kronrod quadrature formula : gauss_kronrod = "
+                                                     << gauss_kronrod << std::endl
             << "  Result directory : " << result_directory << std::endl;
   }
 
