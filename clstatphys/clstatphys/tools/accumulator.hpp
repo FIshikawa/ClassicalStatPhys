@@ -57,14 +57,19 @@ public:
   }
   double central_moment3() const {
     double n = count();
-    double central_moment3_temp = moment3() - 3 * moment2() * moment1() + 2 * moment1() * moment1() * moment1();
+    double central_moment3_temp = moment3() - 3 * moment2() * moment1() 
+                                      + 2 * moment1() * moment1() * moment1();
     return (n > 2) ? (n*n/((n-1)*(n-2))) * central_moment3_temp : 0;
   }
   double central_moment4() const {
     double n = count();
-    double central_moment4_temp = moment4() - 4 * moment3() * moment1() 
-      + 6 * moment2() * moment1() * moment1() - 3 * moment1() * moment1() * moment1() * moment1();
-    double square_variance_temp = (moment2() * moment2() - 2 * moment1() * moment1() * moment2() + moment1() * moment1() * moment1() * moment1());
+    double central_moment4_temp = moment4() 
+                 - 4 * moment3() * moment1() 
+                 + 6 * moment2() * moment1() * moment1() 
+                 - 3 * moment1() * moment1() * moment1() * moment1();
+    double square_variance_temp = (moment2() * moment2() 
+                 - 2 * moment1() * moment1() * moment2() 
+                 + moment1() * moment1() * moment1() * moment1());
     return (n > 3) ?
       n/((n-1)*(n-2)*(n-3)) *
       ((n*n-2*n+3)*central_moment4_temp - (6*n-9)*square_variance_temp) : 0;
@@ -74,9 +79,13 @@ public:
   double cumulant3() const { return central_moment3(); }
   double cumulant4() const {
     double n = count();
-    double central_moment4_temp = moment4() - 4 * moment3() * moment1() 
-      + 6 * moment2() * moment1() * moment1() - 3 * moment1() * moment1() * moment1() * moment1();
-    double square_variance_temp = (moment2() * moment2() - 2 * moment1() * moment1() * moment2() + moment1() * moment1() * moment1() * moment1());
+    double central_moment4_temp = moment4() 
+                      - 4 * moment3() * moment1() 
+                      + 6 * moment2() * moment1() * moment1() 
+                      - 3 * moment1() * moment1() * moment1() * moment1();
+    double square_variance_temp = (moment2() * moment2() 
+                      - 2 * moment1() * moment1() * moment2() 
+                      + moment1() * moment1() * moment1() * moment1());
     return (n > 3) ?
       n*n/((n-1)*(n-2)*(n-3)) *
       ((n+1)*central_moment4_temp - 3*(n-1)*square_variance_temp) : 0;
@@ -87,20 +96,31 @@ public:
   double square_variance() const {
     double n = count();
     double central_moment4_temp = moment4() - 4 * moment3() * moment1() 
-      + 6 * moment2() * moment1() * moment1() - 3 * moment1() * moment1() * moment1() * moment1();
-    double square_variance_temp = (moment2() * moment2() - 2 * moment1() * moment1() * moment2() + moment1() * moment1() * moment1() * moment1());
+                          + 6 * moment2() * moment1() * moment1() 
+                          - 3 * moment1() * moment1() * moment1() * moment1();
+    double square_variance_temp = (moment2() * moment2() 
+                            - 2 * moment1() * moment1() * moment2() 
+                            + moment1() * moment1() * moment1() * moment1());
     return (n > 3) ?
       n/((n-1)*(n-2)*(n-3)) *
       ((n*n-3*n+3)*square_variance_temp-(n-1)*central_moment4_temp) : 0;
   }
-  double variance_error() const {return (count_ > 3) ? std::sqrt(central_moment4()/count() - (count() - 3)/(count()*(count()-1)) * square_variance()) : 0; }
-  double error() const { return (count_ > 1) ? std::sqrt(variance() / count()) : 0; }
+  double variance_error() const 
+        {return (count_ > 3) ? std::sqrt(central_moment4()/count() 
+              - (count() - 3)/(count()*(count()-1)) * square_variance()) : 0; }
+  double error() const { 
+                  return (count_ > 1) ? std::sqrt(variance() / count()) : 0; }
   double standard_deviation() const { return std::sqrt(variance()); }
   double skewness() const {
-    return (standard_deviation() > 0) ? central_moment3() / (standard_deviation() * standard_deviation() * standard_deviation()) : 0;
+    return (standard_deviation() > 0) ? 
+      central_moment3() / 
+      (standard_deviation() * standard_deviation() * standard_deviation()) : 0;
   }
   double kurtosis() const {
-    return (standard_deviation() > 0) ? central_moment4() / (standard_deviation() * standard_deviation() * standard_deviation() * standard_deviation()) : 0;
+    return (standard_deviation() > 0) ? 
+      central_moment4() / 
+        (standard_deviation() * standard_deviation() 
+         * standard_deviation() * standard_deviation()) : 0;
   }
   double kurtosis_excess() const { return kurtosis() - 3; }
 
