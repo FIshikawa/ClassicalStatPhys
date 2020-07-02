@@ -1,6 +1,7 @@
 #ifndef ENSEMBLE_NORMALMODE_ENSEMBLE_PERIODIC_BOUNDARY_HPP
 #define ENSEMBLE_NORMALMODE_ENSEMBLE_PERIODIC_BOUNDARY_HPP
 
+#include <iostream>
 #include <cmath>
 #include <string>
 #include <vector>
@@ -11,9 +12,16 @@ namespace ensemble{
 
 class NormalModeEnsemblePeriodicBoundaryFFTW{
 public:
-  static std::string name() { return "Nomal Mode Ensembe under Periodic Boundary"; }
-  NormalModeEnsemblePeriodicBoundaryFFTW(int num, int k_initial, int N_k, double E) : 
-    num_(num), z_k_(2*num), k_initial_(k_initial), N_k_(N_k/2), Ek_(E/N_k) {}
+  static std::string name() { return "Nomal Mode Ensembe under"
+                                      " Periodic Boundary"; }
+  NormalModeEnsemblePeriodicBoundaryFFTW(int num, 
+                                         int k_initial, 
+                                         int N_k, 
+                                         double E) : 
+    num_(num), z_k_(2*num), k_initial_(k_initial), N_k_(N_k), Ek_(E/N_k) {}
+   { if (2 * N_k_ + k_initial > num_) 
+     std::cerr << "2 * N_k + k_initial must be lower than num"; 
+     std::exit(1); }
   template <class Rand>
   void set_initial_state(std::vector<double>& z, Rand & mt) const {
     // const double kB = 1.38064852 / pow(10.0,23.0);
@@ -36,7 +44,8 @@ public:
       p_k[i] = 0.0;
       x_k[i] = 0.0;
     }
-    for(int i = num_  - N_k_ - (k_initial_ - 1); i < num_ - (k_initial_ - 1); ++i){
+    for(int i = num_  - N_k_ - (k_initial_ - 1); 
+                                          i < num_ - (k_initial_ - 1); ++i){
       double phi = uniform_rand(mt);
       p_k[i] = std::cos(phi) * std::sqrt(2.0 * Ek_);
       double omega = 2.0 * std::sin(i * M_PI /num_);

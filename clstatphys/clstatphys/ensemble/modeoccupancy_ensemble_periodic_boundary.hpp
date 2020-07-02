@@ -1,6 +1,7 @@
 #ifndef ENSEMBLE_MODEOCCUPANCY_ENSEMBLE_PERIODIC_BOUNDARY_HPP
 #define ENSEMBLE_MODEOCCUPANCY_ENSEMBLE_PERIODIC_BOUNDARY_HPP
 
+#include <iostream>
 #include <cmath>
 #include <string>
 #include <vector>
@@ -11,12 +12,23 @@ namespace ensemble{
 
 class ModeOccupancyEnsemblePeriodicBoundary{
 public:
-  static std::string name() { return "Mode Occupancy Ensembe under Periodic Boundary"; }
-  ModeOccupancyEnsemblePeriodicBoundary(int num, int k_initial, int N_k, double E) : 
-    num_(num), z_k_(2*num), k_initial_(k_initial), N_k_(N_k/2){
-      omega_total_ = (std::sin(M_PI*k_initial_/num_) - std::sin(M_PI*(N_k_+1)/num_) 
-                    - std::sin(M_PI*(k_initial_-1)/num_) + std::sin(M_PI*(N_k_)/num_))/(1-std::cos(M_PI/num_));
+  static std::string name() { return "Mode Occupancy Ensembe under "
+                                                  "Periodic Boundary"; }
+  ModeOccupancyEnsemblePeriodicBoundary(int num, 
+                                        int k_initial, 
+                                        int N_k, 
+                                        double E) 
+   : num_(num), z_k_(2*num), k_initial_(k_initial), N_k_(N_k)
+   {
+      omega_total_ = (std::sin(M_PI*k_initial_/num_) 
+                    - std::sin(M_PI*(N_k_+1)/num_) 
+                    - std::sin(M_PI*(k_initial_-1)/num_) 
+                    + std::sin(M_PI*(N_k_)/num_))/(1-std::cos(M_PI/num_));
       occupancy_init_ = E / (2.0 * omega_total_);
+      if (2 * N_k_ + k_initial > num_){ 
+        std::cerr << "2 * N_k + k_initial must be lower than num"; 
+        std::exit(1);
+      }
     }
   template <class Rand>
   void set_initial_state(std::vector<double>& z, Rand & mt) const {
@@ -41,7 +53,8 @@ public:
       p_k[i] = 0.0;
       x_k[i] = 0.0;
     }
-    for(int i = num_  - N_k_ - (k_initial_ - 1); i < num_ - (k_initial_ - 1); ++i){
+    for(int i = num_  - N_k_ - (k_initial_ - 1); 
+                                      i < num_ - (k_initial_ - 1); ++i){
       double phi = uniform_rand(mt);
       double omega = std::abs(2.0 * std::sin(M_PI * i /num_));
       double Ek = omega * occupancy_init_;
