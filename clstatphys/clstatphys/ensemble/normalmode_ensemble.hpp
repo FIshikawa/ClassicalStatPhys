@@ -11,7 +11,9 @@ namespace ensemble{
 
 class NormalModeEnsemble{
 public:
-  static std::string name() { return "Nomal Mode Ensembe under fiexd-ends Periodic Boundary : end point is i = 0"; }
+  static std::string name() { return "Nomal Mode Ensembe under" 
+                                     "fiexd-ends Periodic Boundary : "
+                                     "end point is i = 0"; }
   NormalModeEnsemble(int num, int k_initial, int N_k, double E) : 
     num_(num), z_k_(2*num), k_initial_(k_initial), N_k_(N_k), Ek_(E/N_k) {}
   template <class Rand>
