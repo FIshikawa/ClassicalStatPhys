@@ -4,7 +4,8 @@
  using RandomGenerator = std::mt19937_64;
 
 template<typename Settings, typename PhysicalQuanties>
-void SamplingProcess(Settings & settings, PhysicalQuanties & physical_quantities){
+void SamplingProcess(Settings & settings, 
+                       PhysicalQuanties & physical_quantities){
   //
   std::size_t seed = 1234*(1 + settings.process_id);
   std::minstd_rand seed_gen(seed);
@@ -36,13 +37,16 @@ void SamplingProcess(Settings & settings, PhysicalQuanties & physical_quantities
     time_measure.reset();
     for(int step = 0; step < N_time; ++step){  
       //set total values 
-      if(time_measure.check(step)) physical_quantities.measure(z, measure_step);
+      if(time_measure.check(step)) 
+                    physical_quantities.measure(z, measure_step);
       //time develp
       pt += dt;
       integrator.step(pt, dt, z, hamiltonian);
     }//end time step
     if(measure_step != N_total_data){
-      std::cerr << "final measure_step : " << measure_step << ", N_total_data : " << N_total_data <<", not same " << std::endl;
+      std::cerr << "final measure_step : " << measure_step 
+                << ", N_total_data : " << N_total_data 
+                << ", not same " << std::endl;
       std::exit(112);
     }
   }//end loop

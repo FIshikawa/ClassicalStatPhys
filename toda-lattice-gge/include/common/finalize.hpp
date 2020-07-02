@@ -19,21 +19,31 @@ void Finalize(Settings & settings, PhysicalQuanties & physical_quantities){
 
     for(const auto& key  : physical_quantities.quantities_1d_list){
       for(int step = 0; step < N_total_data; ++step){
-        corrections["sum1"][step] = physical_quantities.quantities_1d[key][step].sum1();
-        corrections["sum2"][step] = physical_quantities.quantities_1d[key][step].sum2();
-        corrections["sum3"][step] = physical_quantities.quantities_1d[key][step].sum3();
-        corrections["sum4"][step] = physical_quantities.quantities_1d[key][step].sum4();
-        corrections["count"][step] = static_cast<double>(physical_quantities.quantities_1d[key][step].count());
+        corrections["sum1"][step] = 
+                          physical_quantities.quantities_1d[key][step].sum1();
+        corrections["sum2"][step] = 
+                          physical_quantities.quantities_1d[key][step].sum2();
+        corrections["sum3"][step] = 
+                          physical_quantities.quantities_1d[key][step].sum3();
+        corrections["sum4"][step] = 
+                          physical_quantities.quantities_1d[key][step].sum4();
+        corrections["count"][step] = 
+          static_cast<double>(
+                      physical_quantities.quantities_1d[key][step].count());
       }
       for(const auto& name: values_name)
-        mpi_error = MPI_Reduce(&corrections[name][0], &reductions[name][0], N_total_data, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+        mpi_error = MPI_Reduce(&corrections[name][0], 
+                               &reductions[name][0], 
+                               N_total_data, 
+                               MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 
       if(process_id == 0){
         for(int step = 0; step < N_total_data; ++step){
           physical_quantities.quantities_1d[key][step].reset();
-          physical_quantities.quantities_1d[key][step].add(reductions["sum1"][step], reductions["sum2"][step], 
-                                                           reductions["sum3"][step], reductions["sum4"][step],
-                                                           static_cast<long>(reductions["count"][step]));
+          physical_quantities.quantities_1d[key][step].add(
+              reductions["sum1"][step], reductions["sum2"][step], 
+              reductions["sum3"][step], reductions["sum4"][step],
+              static_cast<long>(reductions["count"][step]));
         }
       }
     }
@@ -46,21 +56,31 @@ void Finalize(Settings & settings, PhysicalQuanties & physical_quantities){
     for(const auto& key  : physical_quantities.quantities_2d_list){
       for(int step = 0; step < N_total_data; ++step){
         for(int site = 0; site < Ns_observe; ++site){
-          corrections["sum1"][site] = physical_quantities.quantities_2d[key][step][site].sum1();
-          corrections["sum2"][site] = physical_quantities.quantities_2d[key][step][site].sum2();
-          corrections["sum3"][site] = physical_quantities.quantities_2d[key][step][site].sum3();
-          corrections["sum4"][site] = physical_quantities.quantities_2d[key][step][site].sum4();
-          corrections["count"][site] = static_cast<double>(physical_quantities.quantities_2d[key][step][site].count());
+          corrections["sum1"][site] = 
+            physical_quantities.quantities_2d[key][step][site].sum1();
+          corrections["sum2"][site] = 
+            physical_quantities.quantities_2d[key][step][site].sum2();
+          corrections["sum3"][site] =
+            physical_quantities.quantities_2d[key][step][site].sum3();
+          corrections["sum4"][site] = 
+            physical_quantities.quantities_2d[key][step][site].sum4();
+          corrections["count"][site] =
+            static_cast<double>(
+                physical_quantities.quantities_2d[key][step][site].count());
         }
         for(const auto& name: values_name)
-          mpi_error = MPI_Reduce(&corrections[name][0], &reductions[name][0], Ns_observe, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+          mpi_error = MPI_Reduce(&corrections[name][0], 
+                                 &reductions[name][0], 
+                                 Ns_observe,
+                                 MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 
         if(process_id == 0){
           for(int site = 0; site < Ns_observe; ++site){
             physical_quantities.quantities_2d[key][step][site].reset();
-            physical_quantities.quantities_2d[key][step][site].add(reductions["sum1"][site], reductions["sum2"][site], 
-                                                             reductions["sum3"][site], reductions["sum4"][site],
-                                                             static_cast<long>(reductions["count"][site]));
+            physical_quantities.quantities_2d[key][step][site].add(
+                          reductions["sum1"][site], reductions["sum2"][site], 
+                          reductions["sum3"][site], reductions["sum4"][site],
+                          static_cast<long>(reductions["count"][site]));
           }
         }
       }

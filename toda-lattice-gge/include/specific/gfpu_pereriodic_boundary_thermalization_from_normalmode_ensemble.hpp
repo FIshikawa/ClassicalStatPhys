@@ -30,10 +30,6 @@ struct Settings : public SettingsCommon{
     if (argc > input_counter) E_initial =        boost::lexical_cast<double>(argv[input_counter]);++input_counter;
     if (argc > input_counter) k_initial =        boost::lexical_cast<int>(argv[input_counter]);++input_counter;
     if (argc > input_counter) N_normalmode =     boost::lexical_cast<int>(argv[input_counter]);++input_counter;
-    if (Ns < N_normalmode + k_initial){
-      std::cerr << "k_initial + N_noramalmode should be lower than Ns" << std::endl;
-      std::exit(1);
-    } 
     if (argc > input_counter) J =     boost::lexical_cast<double>(argv[input_counter]);++input_counter;
     if (argc > input_counter) alpha = boost::lexical_cast<double>(argv[input_counter]);++input_counter;
     if (argc > input_counter) beta  = boost::lexical_cast<double>(argv[input_counter]);++input_counter;
